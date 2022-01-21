@@ -82,7 +82,6 @@ class Repo with ChangeNotifier {
   }
 
   Future<void> fetchIIds() async {
-
     List<String> iidsToLoad = [];
 
     Repo.iids.forEach((iid, entry) {
@@ -102,8 +101,13 @@ class Repo with ChangeNotifier {
 
     var remoteServer = "https://ipfoam-server-dc89h.ondigitalocean.app/iids/";
     var localServer = "http://localhost:" + localServerPort + "/iids/";
-
     var iidsEndPoint = localServer + iidsToLoad.join(",");
+
+    if (localServerPort == "") {
+      print("No local server specified, using remote:" + remoteServer);
+      iidsEndPoint = remoteServer + iidsToLoad.join(",");
+    }
+
     var uri = Uri.parse(iidsEndPoint);
     try {
       var result = await http.get(uri);
@@ -126,7 +130,10 @@ class Repo with ChangeNotifier {
         }
       });
     } catch (e) {
-      print("Failed to connect to server: "+uri.toString()+"Error: "+ e.toString());
+      print("Failed to connect to server: " +
+          uri.toString() +
+          "Error: " +
+          e.toString());
     }
   }
 }
