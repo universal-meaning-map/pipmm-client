@@ -50,12 +50,15 @@ class SubAbstractionBlock implements IptRender, IptTransform {
   @override
   TextSpan renderTransclusion(repo) {
     var note = Utils.getNote(aref, repo);
+    print(aref);
 
     List<TextSpan> blocks = [];
 
+  
     if (note != null) {
-      if (note.block[Note.iidPropertyTitle]) {
-        blocks.add(renderTitle(note.block[Note.iidPropertyTitle]));
+      print(note.block);
+      if (note.block[Note.iidPropertyName]) {
+        blocks.add(renderTitle(note.block[Note.iidPropertyName]));
         blocks.add(renderLineJump());
       }
       if (note.block[Note.iidPropertyAbstract]) {

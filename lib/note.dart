@@ -17,7 +17,7 @@ class Note {
   //Thesae are only valid for my Repo
   //Todo: move to config
   static const String midXavi = "QmXPTSJee8a4uy61vhAs35tM5bXDomSmo1BbTMUVAVbAGJ";
-  static const String iidPropertyTitle = midXavi + "qz3qlkca";
+  static const String iidPropertyName = midXavi + "qz3qlkca";
   static const String iidPropertyAbstract = midXavi + "bztj655a";
   static const String iidPropertyView = midXavi + "nwyia5xq";
   static const String iidPropertyTransform = midXavi + "wp2piu4q";
