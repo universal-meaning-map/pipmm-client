@@ -49,8 +49,8 @@ class SubAbstractionBlock implements IptRender, IptTransform {
 
   @override
   TextSpan renderTransclusion(repo) {
+    print("Render transclusion: subabstraction block");
     var note = Utils.getNote(aref, repo);
-    print(aref);
 
     List<TextSpan> blocks = [];
 
@@ -73,8 +73,10 @@ class SubAbstractionBlock implements IptRender, IptTransform {
       }
       return TextSpan(children: blocks);
     }
-    return const TextSpan(
-        text: "<Sub-abstraction block>",
+    
+
+    return TextSpan(
+        text: "<Sub-abstraction block. Failed to load "+ aref.origin +">",
         style: TextStyle(
          // fontWeight: FontWeight.w300,
         ));

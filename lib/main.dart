@@ -74,19 +74,17 @@ class AbstractionReference {
   AbstractionReference.fromText(String text) {
     var t = text.split(AbstractionReference.pathToken);
     origin = t[0]; // "iid" or "cid"
-    const midLength = 46;
+    //const midLength = 46;
     const liidLength = 8;
 
     //if there is no token we can assume is a CID. Except whie mids are not implemented
-    if (origin.length <= midLength) {
+    if (origin.length <= 46) {
       cid = origin;
-    } else if (origin.length == midLength + liidLength) {
-      mid = origin.substring(0, midLength);
-      liid = origin.substring(midLength, origin.length);
-      iid = origin;
     } else {
-      log("Error parssing expression:" + text);
-    }
+      mid = origin.substring(0 , origin.length - liidLength);
+      liid = origin.substring(origin.length - liidLength, origin.length);
+      iid = origin;
+    } 
 
     if (t.length > 1) {
       var propertiesRuns = t..removeAt(0);
