@@ -44,7 +44,7 @@ class DynamicTransclusionRun implements IptRun {
         return applyTransform(
             transformNote.block[Note.iidPropertyTransform], repo);
       } else {
-        text = "<dynamic transclusion with unkown transform>";
+        text = "<dynamic transclusion with unkown transform: " + transformAref.origin + ">";
       }
     }
 
