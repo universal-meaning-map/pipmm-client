@@ -28,7 +28,7 @@ class Square {
     repo.forceRequest(iid);
 
     navigation.pushExpr(Navigation.makeColumnExpr(
-        [Navigation.makeSabExpr(AbstractionReference.fromText(iid))]));
+        [Navigation.makeNoteViewerExpr(AbstractionReference.fromText(iid))]));
   }
 
   void processRoute() {

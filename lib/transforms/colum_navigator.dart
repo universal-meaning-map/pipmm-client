@@ -51,7 +51,7 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
         if (newColumns.length > i + 1) {
           newColumns.removeRange(i + 1, newColumns.length);
         }
-        newColumns.add(Navigation.makeSabExpr(aref));
+        newColumns.add(Navigation.makeNoteViewerExpr(aref));
         var expr = Navigation.makeColumnExpr(newColumns);
         navigation.pushExpr(expr);
       }

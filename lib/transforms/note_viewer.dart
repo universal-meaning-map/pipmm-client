@@ -93,8 +93,7 @@ class NoteViewer extends StatelessWidget {
             scrollDirection: Axis.vertical,
           );
         } else if (Utils.getBasicType(typeNote) == Note.basicTypeUrl) {
-          return Hyperlink(url:content.toString());
-
+          return Hyperlink(url: content.toString());
         } else if (Utils.getBasicType(typeNote) == Note.basicTypeBoolean) {
           return buildContentRaw(typeNote, content.toString());
         } else if (Utils.getBasicType(typeNote) == Note.basicTypeDate) {
@@ -124,7 +123,6 @@ class NoteViewer extends StatelessWidget {
             fontWeight: FontWeight.normal, color: Colors.black, fontSize: 20));
   }
 
-
   @override
   Widget build(BuildContext context) {
     final repo = Provider.of<Repo>(context);
@@ -146,6 +144,12 @@ class NoteViewer extends StatelessWidget {
     cidWrap.note!.block.forEach((key, value) {
       items.add(buildPropertyRow(key, value, repo));
     });
+
+
+    for(var a in items){
+      print (a.toString().length);
+
+    }
 
     return ListView(
         padding: const EdgeInsets.all(8),
