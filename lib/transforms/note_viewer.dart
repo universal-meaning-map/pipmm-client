@@ -6,6 +6,7 @@ import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/transforms/abstraction_reference_link.dart';
 import 'package:ipfoam_client/transforms/colum_navigator.dart';
+import 'package:ipfoam_client/transforms/hyperlink.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/utils.dart';
 import 'package:provider/provider.dart';
@@ -91,12 +92,13 @@ class NoteViewer extends StatelessWidget {
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
           );
-        } else if (Utils.getBasicType(typeNote) == Note.basicTypeBoolean) {
-          return buildContentRaw(typeNote, "Boolean");
-        } else if (Utils.getBasicType(typeNote) == Note.basicTypeDate) {
-          return buildContentRaw(typeNote, "Date");
         } else if (Utils.getBasicType(typeNote) == Note.basicTypeUrl) {
-          return buildContentRaw(typeNote, "Url");
+          return Hyperlink(url:content.toString());
+
+        } else if (Utils.getBasicType(typeNote) == Note.basicTypeBoolean) {
+          return buildContentRaw(typeNote, content.toString());
+        } else if (Utils.getBasicType(typeNote) == Note.basicTypeDate) {
+          return buildContentRaw(typeNote, content.toString());
         } else if (Utils.getBasicType(typeNote) ==
             Note.basicTypeInterplanetaryText) {
           List<String> ipt = [];
