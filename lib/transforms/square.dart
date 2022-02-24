@@ -65,12 +65,16 @@ class Square {
   }
 
   void pushRoute(List<dynamic> expr) {
-    var route = "#?localServerPort=" +
-        repo.localServerPort +
-        "&websocketsPort=" +
-        bridge.websocketsPort +
-        "&expr=" +
-        json.encode(expr);
+    var route = "#?";
+    if (bridge.websocketsPort != "") {
+      route = route + "websocketsPort=" + bridge.websocketsPort +"&";
+    }
+
+    if (repo.localServerPort != "") {
+      route = route + "localServerPort=" + repo.localServerPort+"&";
+    }
+
+    route = route + "expr=" + json.encode(expr);
 
     // Html.window.history.replaceState(null, "Interplanetary mind-map", route);
     Html.window.location.hash = route;

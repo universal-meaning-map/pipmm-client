@@ -16,7 +16,7 @@ class Note {
   static const String basicTypeUrl = "url";
   //Thesae are only valid for my Repo
   //Todo: move to config
-  static const String midXavi = "12D3KooWBSEYV1cK821KKdfVTHZc3gKaGkCQXjgoQotUDVYAxr3c";
+  static const String midXavi = "i12D3KooWBSEYV1cK821KKdfVTHZc3gKaGkCQXjgoQotUDVYAxr3c";
   static const String iidPropertyName = midXavi + "qz3qlkca";
   static const String iidPropertyAbstract = midXavi + "bztj655a";
   static const String iidPropertyView = midXavi + "nwyia5xq";
