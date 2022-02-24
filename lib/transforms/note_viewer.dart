@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -120,13 +121,12 @@ class NoteViewer extends StatelessWidget {
         textAlign: TextAlign.left,
         overflow: TextOverflow.visible,
         style: const TextStyle(
-            fontWeight: FontWeight.normal, color: Colors.black, fontSize: 20));
+            fontWeight: FontWeight.normal, color: Colors.black));
   }
 
   @override
   Widget build(BuildContext context) {
     final repo = Provider.of<Repo>(context);
-    final navigation = Provider.of<Navigation>(context);
 
     IidWrap iidWrap = repo.getCidWrapByIid(iid);
 
@@ -139,17 +139,23 @@ class NoteViewer extends StatelessWidget {
       return Text(getStatusText(iid, iidWrap.cid, cidWrap.note));
     }
 
+    var properties = cidWrap.note!.block;
+
+// Sorting the properties based on how long the content is
+    var sortedKeys = properties.keys.toList(growable: false)
+      ..sort((k1, k2) => properties[k1]
+          .toString()
+          .length
+          .compareTo(properties[k2].toString().length))
+      ..reversed;
+    LinkedHashMap sortedMap = LinkedHashMap.fromIterable(sortedKeys,
+        key: (k) => k, value: (k) => properties[k]);
+
     List<Widget> items = [];
 
-    cidWrap.note!.block.forEach((key, value) {
+    sortedMap.forEach((key, value) {
       items.add(buildPropertyRow(key, value, repo));
     });
-
-
-    for(var a in items){
-      print (a.toString().length);
-
-    }
 
     return ListView(
         padding: const EdgeInsets.all(8),
