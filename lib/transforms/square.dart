@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/bridge.dart';
 import 'package:ipfoam_client/main.dart';
+import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/repo.dart';
-import 'package:ipfoam_client/transforms/colum_navigator.dart';
 import 'dart:html' as Html;
 
 class Square {

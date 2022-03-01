@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
+import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/transforms/colum_navigator.dart';
@@ -9,6 +10,7 @@ import 'package:ipfoam_client/transforms/interplanetary_text/dynamic_transclusio
 import 'package:ipfoam_client/transforms/interplanetary_text/plain_text_run.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/static_transclusion_run.dart';
 import 'package:ipfoam_client/transforms/note_viewer.dart';
+import 'package:ipfoam_client/transforms/page_navigator.dart';
 import 'package:provider/provider.dart';
 
 //Run (JSON): `["is6hvlinq2lf4dbua","is6hvlinqxoswfrpq","2"]`

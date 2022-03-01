@@ -1,9 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/bridge.dart';
-import 'dart:developer';
+import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/repo.dart';
-import 'package:ipfoam_client/transforms/colum_navigator.dart';
 import 'package:ipfoam_client/transforms/root_transform_wrapper.dart';
 import 'package:ipfoam_client/transforms/square.dart';
 import 'package:provider/provider.dart';
