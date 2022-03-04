@@ -5,7 +5,6 @@ import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/repo.dart';
-import 'package:ipfoam_client/transforms/colum_navigator.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/dynamic_transclusion_run.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/plain_text_run.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/static_transclusion_run.dart';
@@ -63,7 +62,7 @@ class IPTFactory {
       var dynamicRun = iptRun as DynamicTransclusionRun;
 
       if (dynamicRun.transformAref.iid == Note.iidColumnNavigator) {
-        return ColumnNavigator(arguments: dynamicRun.arguments);
+        return PageNavigator(arguments: dynamicRun.arguments);
       }
       if (dynamicRun.transformAref.iid == Note.iidNoteViewer) {
         return NoteViewer(dynamicRun.arguments, onTap);

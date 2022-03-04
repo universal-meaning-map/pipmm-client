@@ -8,9 +8,6 @@ import 'dart:html' as Html;
 class PageNavigator extends StatefulWidget {
   // [[column1, column2], pref] or [[[column1 render, column1 note], [column2 render, column2 note]],pref]
   List<dynamic> arguments;
-  int prevColumnsAmount = 0;
- // var pageController = PageController(viewportFraction: 1, keepPage: true);
-  double prevF = 0;
   int pos = 0;
   double offset = 0;
 
@@ -29,39 +26,23 @@ class PageNavigatorState extends State<PageNavigator> {
     List<dynamic> columnsExpr = widget.arguments[0];
 
     return LayoutBuilder(builder: (context, constrains) {
-      var w = 600;
+      double columWidth = 600;
+      double viewPortFractionOnMobile = 0.9;
 
-      var f = w / constrains.maxWidth;
-      if (constrains.maxWidth < 667) {
-        f = 1;
+      var f = columWidth / constrains.maxWidth; //expands the viewportFraction lienearly
+      if (constrains.maxWidth < columWidth+columWidth*(1-viewPortFractionOnMobile)) {
+        f = viewPortFractionOnMobile;
+        columWidth = f * columWidth;
       }
 
-      if (f != widget.prevF) {
-      }
-      var pageController = PageController(keepPage: false, viewportFraction: f, initialPage: widget.pos);
+      var pageController = PageController(
+          keepPage: false, viewportFraction: f, initialPage: widget.pos);
 
-      animate() {
-        List<dynamic> columnsExpr = widget.arguments[0];
-        if (columnsExpr.isNotEmpty) {
-        }
-      }
-      
-
-      if (widget.prevColumnsAmount != columnsExpr.length) {
-        // Timer(Duration(milliseconds: 500), animate);
-       // animate();
-      }
-
-      widget.prevF = f;
-      widget.prevColumnsAmount = columnsExpr.length;
-      var fullColumnsDisplayed =(columnsExpr.length*w/ constrains.maxWidth).floor();
       return PageView.builder(
         padEnds: false,
-        
         onPageChanged: (_pos) {
           widget.pos = _pos;
         },
-      
         controller: pageController,
         itemCount: columnsExpr.length,
         itemBuilder: (context, index) {
@@ -75,10 +56,6 @@ class PageNavigatorState extends State<PageNavigator> {
             var expr = Navigation.makeColumnExpr(newColumns);
             navigation.pushExpr(expr);
             pageController.jumpTo(widget.offset);
-           /* pageController.animateTo(columnsExpr.length*w-fullColumnsDisplayed.toDouble(),
-              duration: const Duration(milliseconds: 1000),
-              curve: Curves.linear);*/
-
           }
 
           return Padding(

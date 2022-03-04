@@ -12,6 +12,9 @@ class RootTransformWrapper extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
+  Widget currentTransform = Container(color: Colors.blueAccent,);
+  String prevTransformIid = "";
+
   @override
   State<RootTransformWrapper> createState() => RootTransformWrapperState();
 }
@@ -20,8 +23,11 @@ class RootTransformWrapperState extends State<RootTransformWrapper> {
   @override
   Widget getRootTransform(Navigation navigation) {
     var expr = navigation.history.last;
-
-    return IPTFactory.getRootTransform(expr, IptRoot.defaultOnTap);
+    if(expr[0] != widget.prevTransformIid ){
+      widget.currentTransform = IPTFactory.getRootTransform(expr, IptRoot.defaultOnTap);
+    }
+    widget.prevTransformIid = expr[0];
+    return widget.currentTransform;    
   }
 
   Widget build(BuildContext context) {
