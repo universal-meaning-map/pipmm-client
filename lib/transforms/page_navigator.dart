@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/navigation.dart';
@@ -12,6 +9,10 @@ class PageNavigator extends StatefulWidget {
   // [[column1, column2], pref] or [[[column1 render, column1 note], [column2 render, column2 note]],pref]
   List<dynamic> arguments;
   int prevColumnsAmount = 0;
+ // var pageController = PageController(viewportFraction: 1, keepPage: true);
+  double prevF = 0;
+  int pos = 0;
+  double offset = 0;
 
   PageNavigator({
     required this.arguments,
@@ -23,81 +24,49 @@ class PageNavigator extends StatefulWidget {
 }
 
 class PageNavigatorState extends State<PageNavigator> {
-  Widget _build(BuildContext context) {
-    final navigation = Provider.of<Navigation>(context);
-    List<Widget> columns = [];
-
-    List<dynamic> columnsExpr = widget.arguments[0];
-
-    for (var i = 0; i < columnsExpr.length; i++) {
-      void onTap(AbstractionReference aref) {
-        var newColumns = columnsExpr;
-
-        if (newColumns.length > i + 1) {
-          newColumns.removeRange(i + 1, newColumns.length);
-        }
-        newColumns.add(Navigation.makeNoteViewerExpr(aref));
-        var expr = Navigation.makeColumnExpr(newColumns);
-        navigation.pushExpr(expr);
-      }
-
-      columns.add(
-        ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 650),
-            child: Padding(
-                padding: const EdgeInsets.fromLTRB(40, 0, 20, 0),
-                child: ListView(
-                  //shrinkWrap: true,
-                  children: [
-                    //buildMenuBar(navigation, i),
-                    IPTFactory.getRootTransform(columnsExpr[i], onTap)
-                  ],
-                ))),
-      );
-    }
-
-    return ListView(
-      scrollDirection: Axis.horizontal,
-      children: [
-        Row(
-          children: columns,
-        )
-      ],
-    );
-  }
-
   Widget build(BuildContext context) {
     final navigation = Provider.of<Navigation>(context);
     List<dynamic> columnsExpr = widget.arguments[0];
 
-    PageController pageController;
-
     return LayoutBuilder(builder: (context, constrains) {
       var w = 600;
+
       var f = w / constrains.maxWidth;
-      pageController =
-          PageController(viewportFraction: f, keepPage: false);
+      if (constrains.maxWidth < 667) {
+        f = 1;
+      }
+
+      if (f != widget.prevF) {
+      }
+      var pageController = PageController(keepPage: false, viewportFraction: f, initialPage: widget.pos);
 
       animate() {
-        final navigation = Provider.of<Navigation>(context);
         List<dynamic> columnsExpr = widget.arguments[0];
-        print("Going to " + (columnsExpr[columnsExpr.length - 1]).toString());
-        //pageController.jumpTo(columnsExpr.length.toDouble()-1);
-        pageController.animateToPage(columnsExpr.length - 1,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOutQuad);
+        if (columnsExpr.isNotEmpty) {
+        }
+      }
+      
+
+      if (widget.prevColumnsAmount != columnsExpr.length) {
+        // Timer(Duration(milliseconds: 500), animate);
+       // animate();
       }
 
-      if (widget.prevColumnsAmount != null &&
-          widget.prevColumnsAmount != columnsExpr.length) {
-            Timer(Duration(milliseconds: 10), animate);
-      }
-
+      widget.prevF = f;
+      widget.prevColumnsAmount = columnsExpr.length;
+      var fullColumnsDisplayed =(columnsExpr.length*w/ constrains.maxWidth).floor();
       return PageView.builder(
+        padEnds: false,
+        
+        onPageChanged: (_pos) {
+          widget.pos = _pos;
+        },
+      
         controller: pageController,
         itemCount: columnsExpr.length,
         itemBuilder: (context, index) {
           void onTap(AbstractionReference aref) {
+            widget.offset = pageController.position.pixels;
             var newColumns = columnsExpr;
             if (newColumns.length > index + 1) {
               newColumns.removeRange(index + 1, newColumns.length);
@@ -105,18 +74,18 @@ class PageNavigatorState extends State<PageNavigator> {
             newColumns.add(Navigation.makeNoteViewerExpr(aref));
             var expr = Navigation.makeColumnExpr(newColumns);
             navigation.pushExpr(expr);
+            pageController.jumpTo(widget.offset);
+           /* pageController.animateTo(columnsExpr.length*w-fullColumnsDisplayed.toDouble(),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.linear);*/
 
-            // Timer(Duration(milliseconds: 1000), animate);
           }
 
-          widget.prevColumnsAmount = columnsExpr.length;
-
           return Padding(
-              padding: const EdgeInsets.fromLTRB(40, 0, 20, 0),
+              key: Key(index.toString()),
+              padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
               child: ListView(
-                //shrinkWrap: true,
                 children: [
-                  //buildMenuBar(navigation, i),
                   IPTFactory.getRootTransform(columnsExpr[index], onTap)
                 ],
               ));
@@ -125,14 +94,3 @@ class PageNavigatorState extends State<PageNavigator> {
     });
   }
 }
-
-
-
-
- /*Container(
-          margin: EdgeInsets.all(10.0),
-          color: Colors.amber[600],
-          width: 300,
-          //height: 48.0,
-        )
-        */
