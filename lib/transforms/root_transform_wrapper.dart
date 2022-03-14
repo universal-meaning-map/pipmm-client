@@ -27,7 +27,7 @@ class RootTransformWrapperState extends State<RootTransformWrapper> {
       widget.currentTransform = IPTFactory.getRootTransform(expr, IptRoot.defaultOnTap);
     }
     else{
-      widget.currentTransform.updateArguments(expr, IptRoot.defaultOnTap);
+     // widget.currentTransform.updateArguments(expr, IptRoot.defaultOnTap);
     }
     widget.prevTransformIid = expr[0];
     return widget.currentTransform;    
