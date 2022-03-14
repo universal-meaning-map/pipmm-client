@@ -54,8 +54,7 @@ class IPTFactory {
     return iptRuns;
   }
 
-  static Widget getRootTransform(List<dynamic> expr, Function onTap) {
-    
+  static RootTransform getRootTransform(List<dynamic> expr, Function onTap) {
     var iptRun = IPTFactory.makeIptRunFromExpr(expr, onTap);
 
     if (iptRun.isDynamicTransclusion()) {
@@ -78,6 +77,10 @@ class IPTFactory {
   }
 }
 
+abstract class RootTransform implements Widget {
+  void updateArguments(List<dynamic> expr, Function onTap);
+}
+
 abstract class IptRun implements IptRender {
   List<IptRun> iptRuns = [];
   bool isPlainText();
@@ -94,9 +97,14 @@ abstract class IptTransform {
   String transformIid = "";
 }
 
-class IptRoot extends StatelessWidget {
+class IptRoot extends StatelessWidget implements RootTransform {
   List<String> ipt = [];
   List<IptRun> iptRuns = [];
+
+  @override
+  updateArguments(List<dynamic> args, onTap) {
+    iptRuns = [IPTFactory.makeIptRunFromExpr(args, onTap)];
+  }
 
   static void defaultOnTap(AbstractionReference aref) {
     print("Default tap:" + aref.origin);
@@ -106,12 +114,6 @@ class IptRoot extends StatelessWidget {
     onTap ??= defaultOnTap;
     iptRuns = IPTFactory.makeIptRuns(ipt, onTap);
   }
-
-  /* IptRoot.fromArray(List<String> a) {
-    ipt = ['["' + a.join('","') + '"]'];
-    iptRuns = IPTFactory.makeIptRuns(ipt);
-  }
-  */
 
   IptRoot.fromRun(String jsonStr, onTap) {
     onTap ??= defaultOnTap;

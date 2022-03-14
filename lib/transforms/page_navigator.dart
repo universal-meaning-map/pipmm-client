@@ -3,9 +3,8 @@ import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:provider/provider.dart';
-import 'dart:html' as Html;
 
-class PageNavigator extends StatefulWidget {
+class PageNavigator extends StatefulWidget implements RootTransform{
   // [[column1, column2], pref] or [[[column1 render, column1 note], [column2 render, column2 note]],pref]
   List<dynamic> arguments;
   int pos = 0;
@@ -18,6 +17,11 @@ class PageNavigator extends StatefulWidget {
 
   @override
   State<PageNavigator> createState() => PageNavigatorState();
+
+  @override
+  updateArguments( List<dynamic> args, onTap){
+    arguments = args;
+  }
 }
 
 class PageNavigatorState extends State<PageNavigator> {

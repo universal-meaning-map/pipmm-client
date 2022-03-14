@@ -6,16 +6,21 @@ import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/transforms/abstraction_reference_link.dart';
-import 'package:ipfoam_client/transforms/colum_navigator.dart';
 import 'package:ipfoam_client/transforms/hyperlink.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/utils.dart';
 import 'package:provider/provider.dart';
 
-class NoteViewer extends StatelessWidget {
+class NoteViewer extends StatelessWidget implements RootTransform {
   late String iid;
   List<dynamic> arguments;
   Function onTap;
+
+  @override
+  updateArguments( List<dynamic> args, onTap){
+    arguments = args;
+    this.onTap = onTap;
+  }
 
   NoteViewer(this.arguments, this.onTap) {
     iid = arguments[0];
@@ -45,17 +50,25 @@ class NoteViewer extends StatelessWidget {
         child: Column(
       children: [
         buildPropertyText(propertyName),
-        buildContentByType(typeNote, content, repo)
+        buildSpacing(2),
+        buildContentByType(typeNote, content, repo),
+        buildSpacing(10),
       ],
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
     ));
   }
 
+  Widget buildSpacing(double space) {
+    return SizedBox(
+      height: space,
+    );
+  }
+
   Widget buildPropertyText(String typeIid) {
     String str = typeIid;
 
-    return Text(str.toUpperCase(),
+    return Text(str,
         textAlign: TextAlign.left,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
