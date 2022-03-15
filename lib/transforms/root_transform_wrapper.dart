@@ -18,8 +18,6 @@ class RootTransformWrapperState extends State<RootTransformWrapper> {
   Widget build(BuildContext context) {
     final navigation = Provider.of<Navigation>(context);
     var expr = navigation.history.last;
-    var iptRun = IPTFactory.makeIptRunFromExpr(expr, IptRoot.defaultOnTap);
-
     return IPTFactory.getRootTransform(expr, IptRoot.defaultOnTap);
   }
 }

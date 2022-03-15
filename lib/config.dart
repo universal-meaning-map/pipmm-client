@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 class Config {
   String remoteServer = "";
   String defaultExpr = "";
+  String title = "";
 
   loadConfig(Function onLoaded) async {
     var data = await rootBundle.loadString('config.json');
@@ -12,6 +13,7 @@ class Config {
 
     remoteServer = jsonResult["remoteServer"];
     defaultExpr = jsonResult["defaultExpr"];
+    title = jsonResult["title"];
 
     onLoaded();
   }

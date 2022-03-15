@@ -22,17 +22,33 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  var repo = Repo();
+  var navigation = Navigation();
+  var bridge = Bridge();
+  var config = Config();
+  var rootKey = GlobalKey();
+
+  var title = "";
+
+  initState() {
+    super.initState();
+    var square = Square(context, repo, navigation, bridge, config, () {
+      setState(() {
+        title = config.title;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var repo = Repo();
-    var navigation = Navigation();
-    var bridge = Bridge();
-    var config = Config();
-    var square = Square(context, repo, navigation, bridge, config);
-    var rootKey = GlobalKey();
     var page = Scaffold(
         body: ChangeNotifierProvider.value(
       value: repo,
@@ -41,7 +57,10 @@ class MyApp extends StatelessWidget {
     ));
 
     return MaterialApp(
-      title: ' Interplanetary mind map',
+      title: title,
+      onGenerateTitle: (BuildContext context) {
+        return config.title;
+      },
       theme: ThemeData(
         fontFamily: 'OpenSans',
         canvasColor: Colors.white,

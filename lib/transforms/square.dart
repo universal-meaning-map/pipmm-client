@@ -14,7 +14,7 @@ class Square {
   BuildContext context;
   Config config;
 
-  Square(this.context, this.repo, this.navigation, this.bridge, this.config) {
+  Square(this.context, this.repo, this.navigation, this.bridge, this.config, Function onConfigLoaded) {
     navigation.onExprPushed = onExprPushed;
 
     Html.window.onHashChange.listen((e) {
@@ -23,8 +23,8 @@ class Square {
 
     config.loadConfig(() {
       repo.remoteServer = config.remoteServer;
+      onConfigLoaded();
       processRoute();
-
     });
   }
 
