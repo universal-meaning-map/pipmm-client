@@ -13,11 +13,6 @@ class RootTransformWrapper extends StatefulWidget {
 }
 
 class RootTransformWrapperState extends State<RootTransformWrapper> {
-  @override
-  initState() {
-    super.initState();
-    print("init root");
-  }
 
   @override
   Widget build(BuildContext context) {
