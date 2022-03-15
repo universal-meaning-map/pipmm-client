@@ -1,9 +1,7 @@
 import 'dart:developer';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-class Bridge with ChangeNotifier {
+class Bridge  {
   String websocketsPort = "";
   Bridge();
 
