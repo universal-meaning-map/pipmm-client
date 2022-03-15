@@ -30,14 +30,14 @@ class MyApp extends StatelessWidget {
     var navigation = Navigation();
     var bridge = Bridge();
     var square = Square(context, repo, navigation, bridge);
-
-    var page = ChangeNotifierProvider.value(
-        value: repo,
-        child: Scaffold(
-          body: ChangeNotifierProvider.value(
-              value: navigation, child: RootTransformWrapper(key: const ValueKey ("RootTransform"),)),
-          
-        ));
+    print("Start");
+    var rootKey = GlobalKey();
+    var page = Scaffold(
+        body: ChangeNotifierProvider.value(
+      value: repo,
+      child: ChangeNotifierProvider.value(
+          value: navigation, child: RootTransformWrapper(), key:rootKey),
+    ));
 
     return MaterialApp(
       title: ' Interplanetary mind map',

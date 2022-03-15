@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/repo.dart';
@@ -16,7 +15,11 @@ class NoteViewer extends StatelessWidget implements RootTransform {
   List<dynamic> arguments;
   Function onTap;
 
-  NoteViewer(this.arguments, this.onTap) {
+  NoteViewer({
+    required this.arguments,
+    required this.onTap,
+    Key? key,
+  }) : super(key: key) {
     iid = arguments[0];
   }
 

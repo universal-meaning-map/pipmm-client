@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/bridge.dart';
 import 'package:ipfoam_client/main.dart';

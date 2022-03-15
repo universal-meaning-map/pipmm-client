@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/navigation.dart';
@@ -60,11 +59,16 @@ class IPTFactory {
     if (iptRun.isDynamicTransclusion()) {
       var dynamicRun = iptRun as DynamicTransclusionRun;
 
+      
       if (dynamicRun.transformAref.iid == Note.iidColumnNavigator) {
-        return PageNavigator(arguments: dynamicRun.arguments, key: ValueKey(dynamicRun.transformAref.iid),);
+        return PageNavigator(
+          arguments: dynamicRun.arguments,
+          key: const ValueKey("PageNavigator"),
+        );
       }
       if (dynamicRun.transformAref.iid == Note.iidNoteViewer) {
-        return NoteViewer(dynamicRun.arguments, onTap);
+        return NoteViewer(
+            arguments: dynamicRun.arguments, onTap: onTap, key:  ValueKey(dynamicRun.transformAref.iid));
       }
 
       return IptRoot.fromExpr(expr, onTap);
@@ -77,8 +81,7 @@ class IPTFactory {
   }
 }
 
-abstract class RootTransform implements Widget {
-}
+abstract class RootTransform implements Widget {}
 
 abstract class IptRun implements IptRender {
   List<IptRun> iptRuns = [];
@@ -102,7 +105,6 @@ class IptRoot extends StatelessWidget implements RootTransform {
 
   @override
   updateArguments(List<dynamic> args, onTap) {
-    print("IPTR");
     iptRuns = [IPTFactory.makeIptRunFromExpr(args, onTap)];
   }
 
