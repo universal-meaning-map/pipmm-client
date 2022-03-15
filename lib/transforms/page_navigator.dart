@@ -18,14 +18,6 @@ class PageNavigator extends StatefulWidget implements RootTransform {
 }
 
 class PageNavigatorState extends State<PageNavigator> {
-  int pos = 1;
-  double offset = 0;
-
-  @override
-  initState() {
-    super.initState();
-    print("Init state");
-  }
 
   Widget build(BuildContext context) {
     final navigation = Provider.of<Navigation>(context);
@@ -36,30 +28,27 @@ class PageNavigatorState extends State<PageNavigator> {
     List<dynamic> columnsExpr = widget.arguments[0];
 
     return LayoutBuilder(builder: (context, constrains) {
-      double columWidth = 600;
+      double fullColumWidth = 600;
       double viewPortFractionOnMobile = 0.9;
+      double columnWidth = fullColumWidth;
 
-      var f = columWidth /
+      var f = fullColumWidth /
           constrains.maxWidth; //expands the viewportFraction lienearly
       if (constrains.maxWidth <
-          columWidth + columWidth * (1 - viewPortFractionOnMobile)) {
+          fullColumWidth + fullColumWidth * (1 - viewPortFractionOnMobile)) {
         f = viewPortFractionOnMobile;
-        columWidth = f * columWidth;
+        columnWidth = f * fullColumWidth;
       }
 
-      var pageController = PageController(
-          keepPage: false, viewportFraction: f, initialPage: pos);
+      var pageController = PageController(keepPage: true, viewportFraction: f);
 
       return PageView.builder(
         padEnds: false,
-        onPageChanged: (_pos) {
-          pos = _pos;
-        },
         controller: pageController,
         itemCount: columnsExpr.length,
         itemBuilder: (context, index) {
           void onTap(AbstractionReference aref) {
-            offset = pageController.position.pixels;
+           
             var newColumns = columnsExpr;
             if (newColumns.length > index + 1) {
               newColumns.removeRange(index + 1, newColumns.length);
@@ -67,12 +56,20 @@ class PageNavigatorState extends State<PageNavigator> {
             newColumns.add(Navigation.makeNoteViewerExpr(aref));
             var expr = Navigation.makeColumnExpr(newColumns);
             navigation.pushExpr(expr);
-            pageController.jumpTo(offset);
+
+            double newOffset = 0;
+             if (constrains.maxWidth < newColumns.length * columnWidth) {
+              newOffset = newColumns.length*columnWidth - constrains.maxWidth ;
+            }
+
+            pageController.animateTo(newOffset,
+                duration: const Duration(milliseconds: 350),
+                curve: Curves.easeInOutQuad);
           }
 
           return Padding(
               key: Key(index.toString()),
-              padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
               child: ListView(
                 children: [
                   IPTFactory.getRootTransform(columnsExpr[index], onTap)
