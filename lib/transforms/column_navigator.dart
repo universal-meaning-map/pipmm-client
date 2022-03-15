@@ -4,20 +4,20 @@ import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:provider/provider.dart';
 
-class PageNavigator extends StatefulWidget implements RootTransform {
+class ColumnNavigator extends StatefulWidget implements RootTransform {
   // [[column1, column2], pref] or [[[column1 render, column1 note], [column2 render, column2 note]],pref]
   List<dynamic> arguments;
 
-  PageNavigator({
+  ColumnNavigator({
     required this.arguments,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<PageNavigator> createState() => PageNavigatorState();
+  State<ColumnNavigator> createState() => ColumnNavigatorState();
 }
 
-class PageNavigatorState extends State<PageNavigator> {
+class ColumnNavigatorState extends State<ColumnNavigator> {
 
   Widget build(BuildContext context) {
     final navigation = Provider.of<Navigation>(context);

@@ -8,7 +8,7 @@ import 'package:ipfoam_client/transforms/interplanetary_text/dynamic_transclusio
 import 'package:ipfoam_client/transforms/interplanetary_text/plain_text_run.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/static_transclusion_run.dart';
 import 'package:ipfoam_client/transforms/note_viewer.dart';
-import 'package:ipfoam_client/transforms/page_navigator.dart';
+import 'package:ipfoam_client/transforms/column_navigator.dart';
 import 'package:provider/provider.dart';
 
 //Run (JSON): `["is6hvlinq2lf4dbua","is6hvlinqxoswfrpq","2"]`
@@ -61,14 +61,14 @@ class IPTFactory {
 
       
       if (dynamicRun.transformAref.iid == Note.iidColumnNavigator) {
-        return PageNavigator(
+        return ColumnNavigator(
           arguments: dynamicRun.arguments,
           key: const ValueKey("PageNavigator"),
         );
       }
       if (dynamicRun.transformAref.iid == Note.iidNoteViewer) {
         return NoteViewer(
-            arguments: dynamicRun.arguments, onTap: onTap, key:  ValueKey(dynamicRun.transformAref.iid));
+            arguments: dynamicRun.arguments, onTap: onTap, key:  ValueKey("dynamicRun.transformAref.iid"));
       }
 
       return IptRoot.fromExpr(expr, onTap);
