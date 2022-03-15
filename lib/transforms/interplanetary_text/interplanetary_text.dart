@@ -61,7 +61,7 @@ class IPTFactory {
       var dynamicRun = iptRun as DynamicTransclusionRun;
 
       if (dynamicRun.transformAref.iid == Note.iidColumnNavigator) {
-        return PageNavigator(arguments: dynamicRun.arguments);
+        return PageNavigator(arguments: dynamicRun.arguments, key: ValueKey(dynamicRun.transformAref.iid),);
       }
       if (dynamicRun.transformAref.iid == Note.iidNoteViewer) {
         return NoteViewer(dynamicRun.arguments, onTap);
@@ -78,7 +78,6 @@ class IPTFactory {
 }
 
 abstract class RootTransform implements Widget {
-  void updateArguments(List<dynamic> expr, Function onTap);
 }
 
 abstract class IptRun implements IptRender {
@@ -103,6 +102,7 @@ class IptRoot extends StatelessWidget implements RootTransform {
 
   @override
   updateArguments(List<dynamic> args, onTap) {
+    print("IPTR");
     iptRuns = [IPTFactory.makeIptRunFromExpr(args, onTap)];
   }
 
@@ -143,7 +143,8 @@ class IptRoot extends StatelessWidget implements RootTransform {
       style: const TextStyle(
           fontSize: 14,
           color: Colors.black,
-          fontFamily: "OpenSans",
+          fontFamily: "FiraCode",
+          letterSpacing: -0.5,
           fontWeight: FontWeight.w100,
           fontStyle: FontStyle.normal, //TODO: Use FontStyle.normal. Flutter bug
           height: 1.7),

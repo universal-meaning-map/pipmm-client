@@ -34,8 +34,10 @@ class MyApp extends StatelessWidget {
     var page = ChangeNotifierProvider.value(
         value: repo,
         child: Scaffold(
-            body: ChangeNotifierProvider.value(
-                value: navigation, child: RootTransformWrapper())));
+          body: ChangeNotifierProvider.value(
+              value: navigation, child: RootTransformWrapper(key: const ValueKey ("RootTransform"),)),
+          
+        ));
 
     return MaterialApp(
       title: ' Interplanetary mind map',
@@ -50,9 +52,7 @@ class MyApp extends StatelessWidget {
               pageBuilder: (_, __, ___) => page, settings: settings);
         }
       },
-
     );
-    
   }
 }
 
@@ -80,10 +80,10 @@ class AbstractionReference {
     if (origin.length <= 46) {
       cid = origin;
     } else {
-      mid = origin.substring(0 , origin.length - liidLength);
+      mid = origin.substring(0, origin.length - liidLength);
       liid = origin.substring(origin.length - liidLength, origin.length);
       iid = origin;
-    } 
+    }
 
     if (t.length > 1) {
       var propertiesRuns = t..removeAt(0);

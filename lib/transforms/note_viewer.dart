@@ -16,12 +16,6 @@ class NoteViewer extends StatelessWidget implements RootTransform {
   List<dynamic> arguments;
   Function onTap;
 
-  @override
-  updateArguments( List<dynamic> args, onTap){
-    arguments = args;
-    this.onTap = onTap;
-  }
-
   NoteViewer(this.arguments, this.onTap) {
     iid = arguments[0];
   }
