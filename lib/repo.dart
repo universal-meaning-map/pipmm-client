@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/foundation.dart';
 import 'package:ipfoam_client/note.dart';
 import 'dart:convert';
@@ -10,6 +8,7 @@ class Repo with ChangeNotifier {
   static Map<String, CidWrap> cids = {};
   static Map<String, IidWrap> iids = {};
   String localServerPort = "";
+  String remoteServer = "";
 
   Repo();
 
@@ -99,13 +98,17 @@ class Repo with ChangeNotifier {
       return;
     }
 
-    var remoteServer = "https://ipfoam-server-dc89h.ondigitalocean.app/iids/";
+    //var remoteServer = "https://ipfoam-server-dc89h.ondigitalocean.app/iids/";
     var localServer = "http://localhost:" + localServerPort + "/iids/";
     var iidsEndPoint = localServer + iidsToLoad.join(",");
 
     if (localServerPort == "") {
       print("No local server specified, using remote:" + remoteServer);
       iidsEndPoint = remoteServer + iidsToLoad.join(",");
+      if (remoteServer == "") {
+        print("No remote server specified. Can't work");
+        return;
+      }
     }
 
     var uri = Uri.parse(iidsEndPoint);

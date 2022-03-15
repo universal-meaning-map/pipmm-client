@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/bridge.dart';
+import 'package:ipfoam_client/config.dart';
 import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/transforms/root_transform_wrapper.dart';
@@ -29,14 +30,14 @@ class MyApp extends StatelessWidget {
     var repo = Repo();
     var navigation = Navigation();
     var bridge = Bridge();
-    var square = Square(context, repo, navigation, bridge);
-    print("Start");
+    var config = Config();
+    var square = Square(context, repo, navigation, bridge, config);
     var rootKey = GlobalKey();
     var page = Scaffold(
         body: ChangeNotifierProvider.value(
       value: repo,
       child: ChangeNotifierProvider.value(
-          value: navigation, child: RootTransformWrapper(), key:rootKey),
+          value: navigation, child: RootTransformWrapper(), key: rootKey),
     ));
 
     return MaterialApp(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/bridge.dart';
+import 'package:ipfoam_client/config.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/repo.dart';
@@ -11,15 +12,20 @@ class Square {
   Repo repo;
   Navigation navigation;
   BuildContext context;
+  Config config;
 
-  Square(this.context, this.repo, this.navigation, this.bridge) {
+  Square(this.context, this.repo, this.navigation, this.bridge, this.config) {
     navigation.onExprPushed = onExprPushed;
 
     Html.window.onHashChange.listen((e) {
       processRoute();
     });
 
-    processRoute();
+    config.loadConfig(() {
+      repo.remoteServer = config.remoteServer;
+      processRoute();
+
+    });
   }
 
   void onBridgeIid(String iid) {
@@ -43,11 +49,8 @@ class Square {
     if (websocketsPort != null && websocketsPort != bridge.websocketsPort) {
       bridge.startWs(onIid: onBridgeIid, port: websocketsPort);
     }
-    final runEncoded = uri.queryParameters['expr'];
-
-    if (runEncoded == null) {
-      return;
-    }
+    var runEncoded = uri.queryParameters['expr'];
+    runEncoded ??= config.defaultExpr;
 
     var run = Uri.decodeFull(runEncoded);
 
@@ -66,16 +69,14 @@ class Square {
   void pushRoute(List<dynamic> expr) {
     var route = "#?";
     if (bridge.websocketsPort != "") {
-      route = route + "websocketsPort=" + bridge.websocketsPort +"&";
+      route = route + "websocketsPort=" + bridge.websocketsPort + "&";
     }
 
     if (repo.localServerPort != "") {
-      route = route + "localServerPort=" + repo.localServerPort+"&";
+      route = route + "localServerPort=" + repo.localServerPort + "&";
     }
 
     route = route + "expr=" + json.encode(expr);
-
-    // Html.window.history.replaceState(null, "Interplanetary mind-map", route);
     Html.window.location.hash = route;
   }
 }
