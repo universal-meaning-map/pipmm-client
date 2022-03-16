@@ -13,11 +13,21 @@ class RootTransformWrapper extends StatefulWidget {
 }
 
 class RootTransformWrapperState extends State<RootTransformWrapper> {
+  List<dynamic> expr = [];
+
+  initState() {
+    super.initState();
+    Navigation.onExprChanged = onExprChanged;
+  }
+
+  onExprChanged(List<dynamic> newExpr) {
+    setState(() {
+      expr = newExpr;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final navigation = Provider.of<Navigation>(context);
-    var expr = navigation.history.last;
-    return IPTFactory.getRootTransform(expr, IptRoot.defaultOnTap);
+    return IPTFactory.getRootTransform(expr, Navigation.defaultOnTap);
   }
 }

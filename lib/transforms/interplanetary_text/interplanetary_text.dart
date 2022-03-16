@@ -108,17 +108,15 @@ class IptRoot extends StatelessWidget implements RootTransform {
     iptRuns = [IPTFactory.makeIptRunFromExpr(args, onTap)];
   }
 
-  static void defaultOnTap(AbstractionReference aref) {
-    print("Default tap:" + aref.origin);
-  }
+  
 
   IptRoot(this.ipt, onTap) {
-    onTap ??= defaultOnTap;
+    onTap ??= Navigation.defaultOnTap;
     iptRuns = IPTFactory.makeIptRuns(ipt, onTap);
   }
 
   IptRoot.fromRun(String jsonStr, onTap) {
-    onTap ??= defaultOnTap;
+    onTap ??= Navigation.defaultOnTap;
 
     List<String> expr = json.decode(jsonStr);
 
@@ -139,7 +137,6 @@ class IptRoot extends StatelessWidget implements RootTransform {
 
   @override
   Widget build(BuildContext context) {
-    final navigation = Provider.of<Navigation>(context);
     final repo = Provider.of<Repo>(context);
     var text = SelectableText.rich(TextSpan(
       style: const TextStyle(

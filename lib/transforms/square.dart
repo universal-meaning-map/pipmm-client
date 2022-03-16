@@ -10,19 +10,18 @@ import 'dart:html' as Html;
 class Square {
   Bridge bridge;
   Repo repo;
-  Navigation navigation;
   BuildContext context;
   Config config;
 
   String prevUrl = "";
 
-  Square(this.context, this.repo, this.navigation, this.bridge, this.config,
+  Square(this.context, this.repo, this.bridge, this.config,
       Function onConfigLoaded) {
-    navigation.onExprPushed = onExprPushed;
+    Navigation.onExprPushed = onExprPushed;
 
     Html.window.onHashChange.listen((e) {
       String newUrl = Uri.dataFromString(Html.window.location.href).toString();
-  
+
       //something is triggering false events
       if (newUrl != prevUrl) {
         processRoute();
@@ -41,7 +40,7 @@ class Square {
     print("Pushing IID:" + iid + " from bridge");
     repo.forceRequest(iid);
 
-    navigation.pushExpr(Navigation.makeColumnExpr(
+    Navigation.pushExpr(Navigation.makeColumnExpr(
         [Navigation.makeNoteViewerExpr(AbstractionReference.fromText(iid))]));
   }
 
@@ -65,7 +64,7 @@ class Square {
 
     try {
       List<dynamic> expr = json.decode(run);
-      navigation.setExpr(expr);
+      Navigation.setExpr(expr);
     } catch (e) {
       print("Unable to decode expr:" + run);
     }

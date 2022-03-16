@@ -3,16 +3,17 @@ import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/note.dart';
 
 class Navigation with ChangeNotifier {
-  List<List<dynamic>> history = [[]];
-  Function onExprPushed = (List<dynamic> expr) {}; //set by Square 
-
-  void pushExpr(List<dynamic> expr) {
+  static List<List<dynamic>> history = [[]];
+  static Function onExprPushed = (List<dynamic> expr) {}; //set by Square
+  static Function onExprChanged  = (List<dynamic> expr) {};  //set by rootTransformWrapper
+  static void pushExpr(List<dynamic> expr) {
     onExprPushed(expr);
   }
 
-  void setExpr(List<dynamic> expr) {
+  static void setExpr(List<dynamic> expr) {
     history.add(expr);
-    notifyListeners();
+   // notifyListeners();
+   onExprChanged(expr);
   }
 
   static List<dynamic> makeSabExpr(AbstractionReference aref) {
@@ -25,5 +26,11 @@ class Navigation with ChangeNotifier {
 
   static List<dynamic> makeNoteViewerExpr(AbstractionReference aref) {
     return [Note.iidNoteViewer, aref.iid];
+  }
+
+  static void defaultOnTap(AbstractionReference aref) {
+    print("Default tap:" + aref.origin);
+
+    pushExpr(Navigation.makeNoteViewerExpr(aref));
   }
 }

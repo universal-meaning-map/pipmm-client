@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/bridge.dart';
 import 'package:ipfoam_client/config.dart';
-import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/transforms/root_transform_wrapper.dart';
 import 'package:ipfoam_client/transforms/square.dart';
@@ -31,7 +30,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var repo = Repo();
-  var navigation = Navigation();
   var bridge = Bridge();
   var config = Config();
   var rootKey = GlobalKey();
@@ -40,7 +38,7 @@ class _MyAppState extends State<MyApp> {
 
   initState() {
     super.initState();
-    var square = Square(context, repo, navigation, bridge, config, () {
+    var square = Square(context, repo, bridge, config, () {
       setState(() {
         title = config.title;
       });
@@ -50,11 +48,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     var page = Scaffold(
-        body: ChangeNotifierProvider.value(
-      value: repo,
-      child: ChangeNotifierProvider.value(
-          value: navigation, child: RootTransformWrapper(), key: rootKey),
-    ));
+      body: ChangeNotifierProvider.value(
+          value: repo, child: RootTransformWrapper(), key: rootKey),
+    );
 
     return MaterialApp(
       title: title,
