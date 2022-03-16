@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
-import 'package:provider/provider.dart';
 
 class RootTransformWrapper extends StatefulWidget {
   RootTransformWrapper({
