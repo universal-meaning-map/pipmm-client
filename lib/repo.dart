@@ -7,9 +7,9 @@ import 'package:ipfoam_client/utils.dart';
 class Repo with ChangeNotifier {
   static Map<String, CidWrap> cids = {};
   static Map<String, IidWrap> iids = {};
+  static Map<String, List<Function>> subscriptors = {};
   static String localServerPort = "";
   static String remoteServer = "";
-  static List<Function> subscriptors = [];
 
   Repo();
 
@@ -20,16 +20,22 @@ class Repo with ChangeNotifier {
     }
     cids[cid] ??= CidWrap(cid);
     cids[cid]?.note = note;
-    if (note == null)
+    var oldStatus = cids[cid]?.status;
+    if (note == null) {
       cids[cid]?.status = RequestStatus.missing;
-    else
+    } else {
       cids[cid]?.status = RequestStatus.loaded;
+    }
+    if (oldStatus != cids[cid]?.status) {
+      notifySubscriptors(cid);
+    }
     //log("Server. CID:" + cid + " Status: " + cids[cid]!.status.toString());
   }
 
   static void addCidForIid(String iid, String cid) {
     iids[iid] ??= IidWrap(iid);
     iids[iid]?.cid = cid;
+    var oldStatus = iids[iid]?.status;
 
     if (Utils.cidIsValid(cid) == false) {
       iids[iid]?.status = RequestStatus.missing;
@@ -37,13 +43,24 @@ class Repo with ChangeNotifier {
       iids[iid]?.status = RequestStatus.loaded;
     }
 
+    if (oldStatus != iids[iid]?.status) {
+      notifySubscriptors(iid);
+    }
     //log("Added iid " +iid +"CID: " +cid +" Status: " +iids[iid]!.status.toString());
   }
 
-  static CidWrap getNoteWrapByCid(String cid, Function? notifyUpdate) {
-    if (notifyUpdate != null) {
-      subscriptors.add(notifyUpdate);
+  static addSubscriptor(String cidOrIid, Function? onNotifyUpdate) {
+    if (onNotifyUpdate == null) {
+      return;
     }
+    if (subscriptors[cidOrIid] == null) {
+      subscriptors[cidOrIid] = [];
+    }
+    subscriptors[cidOrIid]!.add(onNotifyUpdate);
+  }
+
+  static CidWrap getNoteWrapByCid(String cid, Function notifyUpdate) {
+    addSubscriptor(cid, notifyUpdate);
     if (Utils.cidIsValid(cid) == false) {
       return CidWrap.invalid(cid);
     }
@@ -58,9 +75,7 @@ class Repo with ChangeNotifier {
   }
 
   static IidWrap getCidWrapByIid(String iid, Function? notifyUpdate) {
-    if (notifyUpdate != null) {
-      subscriptors.add(notifyUpdate);
-    }
+    addSubscriptor(iid, notifyUpdate);
     if (Utils.iidIsValid(iid) == false) {
       return IidWrap.invalid(iid);
     }
@@ -137,7 +152,6 @@ class Repo with ChangeNotifier {
             // dependencies.addAll(Utils.getIddTypesForBlock(block));
           }
         }
-        notifySubscriptors();
       });
     } catch (e) {
       print("Failed to connect to server: " +
@@ -147,10 +161,13 @@ class Repo with ChangeNotifier {
     }
   }
 
-  static notifySubscriptors(){
-    for(var s in subscriptors){
-      s();
+  static notifySubscriptors(String cidOrIid) {
+    if (subscriptors[cidOrIid] != null) {
+      for (var s in subscriptors[cidOrIid]!) {
+        s();
+      }
     }
+    print(subscriptors.length);
   }
 }
 

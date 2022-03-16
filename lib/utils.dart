@@ -67,7 +67,7 @@ class Utils {
     }
   }
 
-  static Note? getNote(AbstractionReference aref, Function? onRepoUpdate) {
+  static Note? getNote(AbstractionReference aref, Function onRepoUpdate) {
     Note? note;
     String? cid;
     if (aref.isIid()) {

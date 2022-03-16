@@ -32,7 +32,7 @@ class StaticTransclusionRun implements IptRun {
   }
 
   List<String> getTranscludedText(Repo repo) {
-    var note = Utils.getNote(aref, null);
+    var note = Utils.getNote(aref, onRepoUpdate);
 
     if (note != null && aref.tiid != null) {
       if (note.block[aref.tiid] != null) {
