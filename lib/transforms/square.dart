@@ -14,11 +14,20 @@ class Square {
   BuildContext context;
   Config config;
 
-  Square(this.context, this.repo, this.navigation, this.bridge, this.config, Function onConfigLoaded) {
+  String prevUrl = "";
+
+  Square(this.context, this.repo, this.navigation, this.bridge, this.config,
+      Function onConfigLoaded) {
     navigation.onExprPushed = onExprPushed;
 
     Html.window.onHashChange.listen((e) {
-      processRoute();
+      String newUrl = Uri.dataFromString(Html.window.location.href).toString();
+  
+      //something is triggering false events
+      if (newUrl != prevUrl) {
+        processRoute();
+        prevUrl = newUrl;
+      }
     });
 
     config.loadConfig(() {
