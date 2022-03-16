@@ -68,7 +68,7 @@ class IPTFactory {
       }
       if (dynamicRun.transformAref.iid == Note.iidNoteViewer) {
         return NoteViewer(
-            arguments: dynamicRun.arguments, onTap: onTap, key:  ValueKey("dynamicRun.transformAref.iid"));
+            arguments: dynamicRun.arguments, onTap: onTap);
       }
 
       return IptRoot.fromExpr(expr, onTap);
