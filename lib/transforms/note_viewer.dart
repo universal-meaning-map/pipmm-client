@@ -10,7 +10,7 @@ import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text
 import 'package:ipfoam_client/utils.dart';
 import 'package:provider/provider.dart';
 
-class NoteViewer extends StatelessWidget implements RootTransform {
+class NoteViewer extends StatefulWidget implements RootTransform {
   late String iid;
   List<dynamic> arguments;
   Function onTap;
@@ -21,6 +21,19 @@ class NoteViewer extends StatelessWidget implements RootTransform {
     Key? key,
   }) : super(key: key) {
     iid = arguments[0];
+  }
+
+  @override
+  State<NoteViewer> createState() => _NoteViewerState();
+}
+
+class _NoteViewerState extends State<NoteViewer> {
+  initState() {
+    super.initState();
+  }
+
+  onRepoUpdate() {
+    setState(() {});
   }
 
   String getStatusText(String? iid, String? cid, Note? note) {
@@ -35,9 +48,9 @@ class NoteViewer extends StatelessWidget implements RootTransform {
   Widget buildPropertyRow(String typeIid, dynamic content, Repo repo) {
     Note? typeNote;
     String propertyName = typeIid;
-    String? cid = repo.getCidWrapByIid(typeIid).cid;
+    String? cid = Repo.getCidWrapByIid(typeIid, onRepoUpdate).cid;
     if (cid != null) {
-      typeNote = repo.getNoteWrapByCid(cid).note;
+      typeNote = Repo.getNoteWrapByCid(cid, onRepoUpdate).note;
       if (typeNote != null) {
         propertyName = typeNote.block[Note.primitiveDefaultName];
       }
@@ -117,7 +130,7 @@ class NoteViewer extends StatelessWidget implements RootTransform {
             log(run);
             ipt.add(run as String);
           }
-          return IptRoot(ipt, onTap);
+          return IptRoot(ipt, widget.onTap, onRepoUpdate);
         }
       } else {
         return buildContentRaw(typeNote, content);
@@ -138,15 +151,15 @@ class NoteViewer extends StatelessWidget implements RootTransform {
   Widget build(BuildContext context) {
     final repo = Provider.of<Repo>(context);
 
-    IidWrap iidWrap = repo.getCidWrapByIid(iid);
+    IidWrap iidWrap = Repo.getCidWrapByIid(widget.iid, onRepoUpdate);
 
     if (iidWrap.cid == null) {
-      return Text(getStatusText(iid, iidWrap.cid, null));
+      return Text(getStatusText(widget.iid, iidWrap.cid, null));
     }
-    CidWrap cidWrap = repo.getNoteWrapByCid(iidWrap.cid!);
+    CidWrap cidWrap = Repo.getNoteWrapByCid(iidWrap.cid!, onRepoUpdate);
 
     if (cidWrap.note == null) {
-      return Text(getStatusText(iid, iidWrap.cid, cidWrap.note));
+      return Text(getStatusText(widget.iid, iidWrap.cid, cidWrap.note));
     }
 
     var properties = cidWrap.note!.block;

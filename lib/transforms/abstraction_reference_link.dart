@@ -2,12 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/note.dart';
-import 'package:provider/provider.dart';
 
-class AbstractionReferenceLink extends StatelessWidget {
+class AbstractionReferenceLink extends StatefulWidget {
   final AbstractionReference aref;
 
   AbstractionReferenceLink({required this.aref});
+
+  @override
+  State<AbstractionReferenceLink> createState() =>
+      _AbstractionReferenceLinkState();
+}
+
+class _AbstractionReferenceLinkState extends State<AbstractionReferenceLink> {
+  initState() {
+    super.initState();
+  }
+
+  onRepoUpdate() {
+    setState(() {});
+  }
 
   Widget buildText(String str) {
     return Text(str,
@@ -19,29 +32,26 @@ class AbstractionReferenceLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repo = Provider.of<Repo>(context);
-
     IidWrap? iidWrap;
     CidWrap? cidWrap;
-    String str;
+    String str = "";
 
-    if (aref.isIid()) {
-      iidWrap = repo.getCidWrapByIid(aref.iid!);
-      str = aref.iid!;
+    if (widget.aref.isIid()) {
+      iidWrap = Repo.getCidWrapByIid(widget.aref.iid!, onRepoUpdate);
+      str = widget.aref.iid!;
       if (iidWrap.cid != null) {
         str = iidWrap.cid!;
-        cidWrap = repo.getNoteWrapByCid(iidWrap.cid!);
+        cidWrap = Repo.getNoteWrapByCid(iidWrap.cid!, onRepoUpdate);
       }
-    } else if (aref.isCid()) {
-      cidWrap = repo.getNoteWrapByCid(aref.cid!);
-      str = aref.cid!;
+    } else if (widget.aref.isCid()) {
+      cidWrap = Repo.getNoteWrapByCid(widget.aref.cid!, onRepoUpdate);
+      str = widget.aref.cid!;
     } else {
       str = "Null";
     }
 
     if (cidWrap != null &&
         cidWrap.note != null &&
-        
         cidWrap.note!.block[Note.iidPropertyName] != null) {
       str = cidWrap.note!.block[Note.iidPropertyName];
     }

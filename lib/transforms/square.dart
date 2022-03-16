@@ -30,7 +30,7 @@ class Square {
     });
 
     config.loadConfig(() {
-      repo.remoteServer = config.remoteServer;
+      Repo.remoteServer = config.remoteServer;
       onConfigLoaded();
       processRoute();
     });
@@ -38,7 +38,7 @@ class Square {
 
   void onBridgeIid(String iid) {
     print("Pushing IID:" + iid + " from bridge");
-    repo.forceRequest(iid);
+    Repo.forceRequest(iid);
 
     Navigation.pushExpr(Navigation.makeColumnExpr(
         [Navigation.makeNoteViewerExpr(AbstractionReference.fromText(iid))]));
@@ -49,8 +49,8 @@ class Square {
 
     final localServerPort = uri.queryParameters['localServerPort'];
 
-    if (localServerPort != null && localServerPort != repo.localServerPort) {
-      repo.localServerPort = localServerPort;
+    if (localServerPort != null && localServerPort != Repo.localServerPort) {
+      Repo.localServerPort = localServerPort;
     }
 
     final websocketsPort = uri.queryParameters['websocketsPort'];
@@ -80,8 +80,8 @@ class Square {
       route = route + "websocketsPort=" + bridge.websocketsPort + "&";
     }
 
-    if (repo.localServerPort != "") {
-      route = route + "localServerPort=" + repo.localServerPort + "&";
+    if (Repo.localServerPort != "") {
+      route = route + "localServerPort=" + Repo.localServerPort + "&";
     }
 
     route = route + "expr=" + json.encode(expr);

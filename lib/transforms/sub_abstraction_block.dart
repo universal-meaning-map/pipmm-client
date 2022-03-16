@@ -11,13 +11,15 @@ class SubAbstractionBlock implements IptRender, IptTransform {
   int level = 0;
   final Repo repo;
   Function onTap;
+  Function onRepoUpdate;
 
   @override
   String transformIid =Note.iidSubAbstractionBlock;
   @override
   List<dynamic> arguments;
+  
 
-  SubAbstractionBlock(this.arguments, this.repo, this.onTap) {
+  SubAbstractionBlock(this.arguments, this.repo, this.onTap, this.onRepoUpdate) {
     processArguments();
   }
 
@@ -49,7 +51,7 @@ class SubAbstractionBlock implements IptRender, IptTransform {
 
   @override
   TextSpan renderTransclusion(repo) {
-    var note = Utils.getNote(aref, repo);
+    var note = Utils.getNote(aref, null);
 
     List<TextSpan> blocks = [];
 
@@ -111,7 +113,7 @@ class SubAbstractionBlock implements IptRender, IptTransform {
   }
 
   TextSpan renderAbstract(List<String> ipt, repo) {
-    var a = IptRoot(ipt, onTap);
+    var a = IptRoot(ipt, onTap, onRepoUpdate);
 
     var text = a.renderIPT(repo);
     return TextSpan(
@@ -123,7 +125,7 @@ class SubAbstractionBlock implements IptRender, IptTransform {
   }
 
   TextSpan renderView(List<String> ipt, repo) {
-    var iptRuns = IPTFactory.makeIptRuns(ipt, onTap);
+    var iptRuns = IPTFactory.makeIptRuns(ipt, onTap, onRepoUpdate);
 
     List<TextSpan> elements = [];
     for (var i = 0; i < iptRuns.length; i++) {

@@ -12,9 +12,10 @@ class DynamicTransclusionRun implements IptRun {
   List<IptRun> iptRuns = []; //TODO unused?
   late AbstractionReference transformAref;
   List<dynamic> arguments = [];
-   Function onTap ;
+  Function onTap;
+  Function onRepoUpdate;
 
-  DynamicTransclusionRun(List<dynamic> expr,this.onTap) {
+  DynamicTransclusionRun(List<dynamic> expr, this.onTap, this.onRepoUpdate) {
     transformAref = AbstractionReference.fromText(expr[0]);
     arguments = expr.sublist(1, expr.length);
   }
@@ -36,14 +37,16 @@ class DynamicTransclusionRun implements IptRun {
 
   @override
   TextSpan renderTransclusion(Repo repo) {
-    var transformNote = Utils.getNote(transformAref, repo);
+    var transformNote = Utils.getNote(transformAref, null);
     var text = "<Dynamic transclusion not found: " + transformAref.origin + ">";
     if (transformNote != null) {
       if (transformNote.block[Note.iidPropertyTransform]) {
         return applyTransform(
             transformNote.block[Note.iidPropertyTransform], repo);
       } else {
-        text = "<dynamic transclusion with unkown transform: " + transformAref.origin + ">";
+        text = "<dynamic transclusion with unkown transform: " +
+            transformAref.origin +
+            ">";
       }
     }
 
@@ -54,13 +57,12 @@ class DynamicTransclusionRun implements IptRun {
         ));
   }
 
-  TextSpan applyTransform(
-      String transformId, Repo repo) {
+  TextSpan applyTransform(String transformId, Repo repo) {
     IptRender transform = PlainTextRun("<" + transformId + " not implemented>");
     if (transformId == Note.transFilter) {
       //TODO
     } else if (transformId == Note.transSubAbstractionBlock) {
-      transform = SubAbstractionBlock(arguments, repo, onTap);
+      transform = SubAbstractionBlock(arguments, repo, onTap, onRepoUpdate);
     }
 
     return transform.renderTransclusion(repo);

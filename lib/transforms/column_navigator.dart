@@ -17,6 +17,10 @@ class ColumnNavigator extends StatefulWidget implements RootTransform {
 }
 
 class ColumnNavigatorState extends State<ColumnNavigator> {
+  onRepoUpdate() {
+    setState(() {});
+  }
+
   Widget build(BuildContext context) {
     if (widget.arguments.isEmpty) {
       return const Text('(╯°□°)╯︵ ┻━┻');
@@ -44,7 +48,6 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
         itemCount: columnsExpr.length,
         itemBuilder: (context, index) {
           void onTap(AbstractionReference aref) {
-
             var newColumns = columnsExpr;
             if (newColumns.length > index + 1) {
               newColumns.removeRange(index + 1, newColumns.length);
@@ -69,7 +72,8 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
             child: ListView(
               children: [
-                IPTFactory.getRootTransform(columnsExpr[index], onTap)
+                IPTFactory.getRootTransform(
+                    columnsExpr[index], onTap, onRepoUpdate)
               ],
             ),
           );

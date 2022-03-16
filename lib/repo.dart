@@ -7,12 +7,13 @@ import 'package:ipfoam_client/utils.dart';
 class Repo with ChangeNotifier {
   static Map<String, CidWrap> cids = {};
   static Map<String, IidWrap> iids = {};
-  String localServerPort = "";
-  String remoteServer = "";
+  static String localServerPort = "";
+  static String remoteServer = "";
+  static List<Function> subscriptors = [];
 
   Repo();
 
-  void addNoteForCid(String cid, Note? note) {
+  static void addNoteForCid(String cid, Note? note) {
     //log("addNoteForCid");
     if (Utils.cidIsValid(cid) == false) {
       throw ("Empty cid can't arrive here");
@@ -24,10 +25,9 @@ class Repo with ChangeNotifier {
     else
       cids[cid]?.status = RequestStatus.loaded;
     //log("Server. CID:" + cid + " Status: " + cids[cid]!.status.toString());
-    notifyListeners();
   }
 
-  void addCidForIid(String iid, String cid) {
+  static void addCidForIid(String iid, String cid) {
     iids[iid] ??= IidWrap(iid);
     iids[iid]?.cid = cid;
 
@@ -40,7 +40,10 @@ class Repo with ChangeNotifier {
     //log("Added iid " +iid +"CID: " +cid +" Status: " +iids[iid]!.status.toString());
   }
 
-  CidWrap getNoteWrapByCid(String cid) {
+  static CidWrap getNoteWrapByCid(String cid, Function? notifyUpdate) {
+    if (notifyUpdate != null) {
+      subscriptors.add(notifyUpdate);
+    }
     if (Utils.cidIsValid(cid) == false) {
       return CidWrap.invalid(cid);
     }
@@ -54,7 +57,10 @@ class Repo with ChangeNotifier {
     return cids[cid]!;
   }
 
-  IidWrap getCidWrapByIid(String iid) {
+  static IidWrap getCidWrapByIid(String iid, Function? notifyUpdate) {
+    if (notifyUpdate != null) {
+      subscriptors.add(notifyUpdate);
+    }
     if (Utils.iidIsValid(iid) == false) {
       return IidWrap.invalid(iid);
     }
@@ -73,14 +79,14 @@ class Repo with ChangeNotifier {
     return iids[iid]!;
   }
 
-  IidWrap forceRequest(String iid) {
-    var wrap = getCidWrapByIid(iid); //ensure is created first
+  static IidWrap forceRequest(String iid) {
+    var wrap = getCidWrapByIid(iid, null); //ensure is created first
     print("current status for: " + iid + wrap.status.toString());
     iids[iid]!.status = RequestStatus.needed;
     return wrap;
   }
 
-  Future<void> fetchIIds() async {
+  static Future<void> fetchIIds() async {
     List<String> iidsToLoad = [];
 
     Repo.iids.forEach((iid, entry) {
@@ -131,12 +137,19 @@ class Repo with ChangeNotifier {
             // dependencies.addAll(Utils.getIddTypesForBlock(block));
           }
         }
+        notifySubscriptors();
       });
     } catch (e) {
       print("Failed to connect to server: " +
           uri.toString() +
           "Error: " +
           e.toString());
+    }
+  }
+
+  static notifySubscriptors(){
+    for(var s in subscriptors){
+      s();
     }
   }
 }

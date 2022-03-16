@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
 
   initState() {
     super.initState();
-    var square = Square(context, repo, bridge, config, () {
+    var square = Square(context, repo, bridge, config, () { 
       setState(() {
         title = config.title;
       });
@@ -49,7 +49,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     var page = Scaffold(
       body: ChangeNotifierProvider.value(
-          value: repo, child: RootTransformWrapper(), key: rootKey),
+          value: repo, child: RootTransformWrapper(key:rootKey) ),
     );
 
     return MaterialApp(

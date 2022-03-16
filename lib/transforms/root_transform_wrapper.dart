@@ -25,8 +25,13 @@ class RootTransformWrapperState extends State<RootTransformWrapper> {
     });
   }
 
+  onRepoUpdate(List<dynamic> newExpr) {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-    return IPTFactory.getRootTransform(expr, Navigation.defaultOnTap);
+    return IPTFactory.getRootTransform(
+        expr, Navigation.defaultOnTap, onRepoUpdate);
   }
 }

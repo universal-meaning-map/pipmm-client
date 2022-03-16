@@ -10,8 +10,9 @@ class StaticTransclusionRun implements IptRun {
   late AbstractionReference aref;
   List<IptRun> iptRuns = [];
   Function onTap;
+  Function onRepoUpdate;
 
-  StaticTransclusionRun(List<dynamic> expr, this.onTap) {
+  StaticTransclusionRun(List<dynamic> expr, this.onTap, this.onRepoUpdate) {
     aref = AbstractionReference.fromText(expr[0]);
   }
 
@@ -31,7 +32,7 @@ class StaticTransclusionRun implements IptRun {
   }
 
   List<String> getTranscludedText(Repo repo) {
-    var note = Utils.getNote(aref, repo);
+    var note = Utils.getNote(aref, null);
 
     if (note != null && aref.tiid != null) {
       if (note.block[aref.tiid] != null) {
