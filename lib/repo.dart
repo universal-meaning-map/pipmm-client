@@ -157,18 +157,6 @@ class Repo with ChangeNotifier {
     subscriptors[cidOrIid]!.add(onNotifyUpdate);
   }
 
-/*
-  static removeSubscriptor(String cidOrIid, Function onNotifyUpdate) {
-    if (subscriptors[cidOrIid] == null) return;
-    for (var i = 0; i <= subscriptors[cidOrIid]!.length; i++) {
-      if (identical(subscriptors[cidOrIid]![i], onNotifyUpdate)) {
-        subscriptors[cidOrIid]!.removeAt(i);
-        print("Removing: " + cidOrIid);
-      }
-    }
-  }
-  */
-
   static updateSubscriptorsToCid(String iid, String cid) {
     if (subscriptors[iid] == null) return;
 

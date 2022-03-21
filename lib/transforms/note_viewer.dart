@@ -32,9 +32,10 @@ class NoteViewer extends StatefulWidget implements RootTransform {
 class _NoteViewerState extends State<NoteViewer> {
   @override
   initState() {
-    print("note viewer"+ widget.key.toString());
+
     super.initState();
     Repo.addSubscriptor(widget.iid, onRepoUpdate);
+    subscribeToProperties();
   }
 
   onRepoUpdate() {
@@ -56,8 +57,8 @@ class _NoteViewerState extends State<NoteViewer> {
         }
       }
     }
+  
   }
-
 
   String getStatusText(String? iid, String? cid, Note? note) {
     return "IID: " +

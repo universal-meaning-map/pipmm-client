@@ -50,7 +50,6 @@ class _IptRootState extends State<IptRoot> {
     if (children.contains(cidOrIid)) {
       return;
     }
-    print("Child " + cidOrIid);
     children.add(cidOrIid);
     Repo.addSubscriptor(cidOrIid, onRepoUpdate);
   }

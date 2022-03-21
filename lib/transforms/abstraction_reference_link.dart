@@ -26,7 +26,6 @@ class _AbstractionReferenceLinkState extends State<AbstractionReferenceLink> {
     }
   }
 
-
   onRepoUpdate() {
     setState(() {});
   }
