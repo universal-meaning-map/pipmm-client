@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
@@ -25,13 +27,14 @@ class RootTransformWrapperState extends State<RootTransformWrapper> {
     });
   }
 
+/*
   onRepoUpdate(List<dynamic> newExpr) {
     setState(() {});
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return IPTFactory.getRootTransform(
-        expr, Navigation.defaultOnTap, onRepoUpdate);
+        expr, Navigation.defaultOnTap);
   }
 }

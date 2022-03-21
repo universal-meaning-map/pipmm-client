@@ -67,18 +67,18 @@ class Utils {
     }
   }
 
-  static Note? getNote(AbstractionReference aref, Function onRepoUpdate) {
+  static Note? getNote(AbstractionReference aref) {
     Note? note;
     String? cid;
     if (aref.isIid()) {
-      cid = Repo.getCidWrapByIid(aref.iid!,onRepoUpdate).cid;
+      cid = Repo.getCidWrapByIid(aref.iid!).cid;
     } else if (aref.isCid()) {
       cid = aref.cid;
     } else {
       //unknown, Text
     }
     if (cid != null) {
-      var noteWrap = Repo.getNoteWrapByCid(cid, onRepoUpdate);
+      var noteWrap = Repo.getNoteWrapByCid(cid);
       note = noteWrap.note;
     }else{
     }

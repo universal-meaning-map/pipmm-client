@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/note.dart';
-import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/plain_text_run.dart';
 import 'package:ipfoam_client/transforms/sub_abstraction_block.dart';
 import 'package:ipfoam_client/utils.dart';
 
 class DynamicTransclusionRun implements IptRun {
-  @override
-  List<IptRun> iptRuns = []; //TODO unused?
   late AbstractionReference transformAref;
   List<dynamic> arguments = [];
   Function onTap;
-  Function onRepoUpdate;
 
-  DynamicTransclusionRun(List<dynamic> expr, this.onTap, this.onRepoUpdate) {
+  DynamicTransclusionRun(List<dynamic> expr, this.onTap) {
     transformAref = AbstractionReference.fromText(expr[0]);
     arguments = expr.sublist(1, expr.length);
   }
@@ -36,13 +32,22 @@ class DynamicTransclusionRun implements IptRun {
   }
 
   @override
-  TextSpan renderTransclusion(Repo repo) {
-    var transformNote = Utils.getNote(transformAref, onRepoUpdate);
+  TextSpan renderTransclusion(Function subscribeChild) {
+    subscribeChild(transformAref.iid);
+
+    if (transformAref.isIid()) {
+      subscribeChild(transformAref.iid);
+    } else {
+      if (transformAref.isCid()) {
+        subscribeChild(transformAref.cid);
+      }
+    }
+    var transformNote = Utils.getNote(transformAref);
     var text = "<Dynamic transclusion not found: " + transformAref.origin + ">";
     if (transformNote != null) {
       if (transformNote.block[Note.iidPropertyTransform]) {
         return applyTransform(
-            transformNote.block[Note.iidPropertyTransform], repo);
+            transformNote.block[Note.iidPropertyTransform], subscribeChild);
       } else {
         text = "<dynamic transclusion with unkown transform: " +
             transformAref.origin +
@@ -57,14 +62,14 @@ class DynamicTransclusionRun implements IptRun {
         ));
   }
 
-  TextSpan applyTransform(String transformId, Repo repo) {
+  TextSpan applyTransform(String transformId, Function subscribeChild) {
     IptRender transform = PlainTextRun("<" + transformId + " not implemented>");
     if (transformId == Note.transFilter) {
       //TODO
     } else if (transformId == Note.transSubAbstractionBlock) {
-      transform = SubAbstractionBlock(arguments, repo, onTap, onRepoUpdate);
+      transform = SubAbstractionBlock(arguments, onTap);
     }
 
-    return transform.renderTransclusion(repo);
+    return transform.renderTransclusion(subscribeChild);
   }
 }

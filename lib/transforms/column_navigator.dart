@@ -17,9 +17,11 @@ class ColumnNavigator extends StatefulWidget implements RootTransform {
 }
 
 class ColumnNavigatorState extends State<ColumnNavigator> {
-  onRepoUpdate() {
+
+ /* onRepoUpdate() {
     setState(() {});
   }
+  */
 
   Widget build(BuildContext context) {
     if (widget.arguments.isEmpty) {
@@ -73,7 +75,7 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
             child: ListView(
               children: [
                 IPTFactory.getRootTransform(
-                    columnsExpr[index], onTap, onRepoUpdate)
+                    columnsExpr[index], onTap)
               ],
             ),
           );

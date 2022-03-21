@@ -14,9 +14,18 @@ class AbstractionReferenceLink extends StatefulWidget {
 }
 
 class _AbstractionReferenceLinkState extends State<AbstractionReferenceLink> {
+  @override
   initState() {
     super.initState();
+    if (widget.aref.isIid()) {
+      Repo.addSubscriptor(widget.aref.iid!, onRepoUpdate);
+    } else {
+      if (widget.aref.isCid()) {
+        Repo.addSubscriptor(widget.aref.cid!, onRepoUpdate);
+      }
+    }
   }
+
 
   onRepoUpdate() {
     setState(() {});
@@ -37,14 +46,14 @@ class _AbstractionReferenceLinkState extends State<AbstractionReferenceLink> {
     String str = "";
 
     if (widget.aref.isIid()) {
-      iidWrap = Repo.getCidWrapByIid(widget.aref.iid!, onRepoUpdate);
+      iidWrap = Repo.getCidWrapByIid(widget.aref.iid!);
       str = widget.aref.iid!;
       if (iidWrap.cid != null) {
         str = iidWrap.cid!;
-        cidWrap = Repo.getNoteWrapByCid(iidWrap.cid!, onRepoUpdate);
+        cidWrap = Repo.getNoteWrapByCid(iidWrap.cid!);
       }
     } else if (widget.aref.isCid()) {
-      cidWrap = Repo.getNoteWrapByCid(widget.aref.cid!, onRepoUpdate);
+      cidWrap = Repo.getNoteWrapByCid(widget.aref.cid!);
       str = widget.aref.cid!;
     } else {
       str = "Null";

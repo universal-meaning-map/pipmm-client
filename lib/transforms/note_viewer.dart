@@ -7,6 +7,7 @@ import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/transforms/abstraction_reference_link.dart';
 import 'package:ipfoam_client/transforms/hyperlink.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
+import 'package:ipfoam_client/transforms/interplanetary_text/ipt_root.dart';
 import 'package:ipfoam_client/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +15,7 @@ class NoteViewer extends StatefulWidget implements RootTransform {
   late String iid;
   List<dynamic> arguments;
   Function onTap;
+  bool propertiesSubscribed = false;
 
   NoteViewer({
     required this.arguments,
@@ -28,13 +30,34 @@ class NoteViewer extends StatefulWidget implements RootTransform {
 }
 
 class _NoteViewerState extends State<NoteViewer> {
+  @override
   initState() {
+    print("note viewer"+ widget.key.toString());
     super.initState();
+    Repo.addSubscriptor(widget.iid, onRepoUpdate);
   }
 
   onRepoUpdate() {
+    if (widget.propertiesSubscribed == false) {
+      subscribeToProperties();
+    }
     setState(() {});
   }
+
+  subscribeToProperties() {
+    String? cid = Repo.getCidWrapByIid(widget.iid).cid;
+    if (cid != null) {
+      CidWrap cidWrap = Repo.getNoteWrapByCid(cid);
+      if (cidWrap.note != null) {
+        widget.propertiesSubscribed = true;
+        var properties = cidWrap.note!.block;
+        for (String tiid in properties.keys) {
+          Repo.addSubscriptor(tiid, onRepoUpdate);
+        }
+      }
+    }
+  }
+
 
   String getStatusText(String? iid, String? cid, Note? note) {
     return "IID: " +
@@ -48,9 +71,9 @@ class _NoteViewerState extends State<NoteViewer> {
   Widget buildPropertyRow(String typeIid, dynamic content, Repo repo) {
     Note? typeNote;
     String propertyName = typeIid;
-    String? cid = Repo.getCidWrapByIid(typeIid, onRepoUpdate).cid;
+    String? cid = Repo.getCidWrapByIid(typeIid).cid;
     if (cid != null) {
-      typeNote = Repo.getNoteWrapByCid(cid, onRepoUpdate).note;
+      typeNote = Repo.getNoteWrapByCid(cid).note;
       if (typeNote != null) {
         propertyName = typeNote.block[Note.primitiveDefaultName];
       }
@@ -130,7 +153,7 @@ class _NoteViewerState extends State<NoteViewer> {
             log(run);
             ipt.add(run as String);
           }
-          return IptRoot(ipt, widget.onTap, onRepoUpdate);
+          return IptRoot(ipt, widget.onTap, ValueKey(ipt.toString()));
         }
       } else {
         return buildContentRaw(typeNote, content);
@@ -151,12 +174,12 @@ class _NoteViewerState extends State<NoteViewer> {
   Widget build(BuildContext context) {
     final repo = Provider.of<Repo>(context);
 
-    IidWrap iidWrap = Repo.getCidWrapByIid(widget.iid, onRepoUpdate);
+    IidWrap iidWrap = Repo.getCidWrapByIid(widget.iid);
 
     if (iidWrap.cid == null) {
       return Text(getStatusText(widget.iid, iidWrap.cid, null));
     }
-    CidWrap cidWrap = Repo.getNoteWrapByCid(iidWrap.cid!, onRepoUpdate);
+    CidWrap cidWrap = Repo.getNoteWrapByCid(iidWrap.cid!);
 
     if (cidWrap.note == null) {
       return Text(getStatusText(widget.iid, iidWrap.cid, cidWrap.note));

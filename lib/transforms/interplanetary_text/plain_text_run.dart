@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 
 class PlainTextRun implements IptRun {
-  @override
-  List<IptRun> iptRuns = [];
   String text;
   PlainTextRun(this.text);
 
@@ -24,7 +21,7 @@ class PlainTextRun implements IptRun {
   }
 
   @override
-  TextSpan renderTransclusion(Repo repo) {
+  TextSpan renderTransclusion(Function subscribeChild) {
     return TextSpan(
         text: text,
         style: const TextStyle(

@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/color_utils.dart';
 import 'package:ipfoam_client/main.dart';
-import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/utils.dart';
 
@@ -10,9 +9,8 @@ class StaticTransclusionRun implements IptRun {
   late AbstractionReference aref;
   List<IptRun> iptRuns = [];
   Function onTap;
-  Function onRepoUpdate;
 
-  StaticTransclusionRun(List<dynamic> expr, this.onTap, this.onRepoUpdate) {
+  StaticTransclusionRun(List<dynamic> expr, this.onTap) {
     aref = AbstractionReference.fromText(expr[0]);
   }
 
@@ -31,8 +29,8 @@ class StaticTransclusionRun implements IptRun {
     return false;
   }
 
-  List<String> getTranscludedText(Repo repo) {
-    var note = Utils.getNote(aref, onRepoUpdate);
+  List<String> getTranscludedText() {
+    var note = Utils.getNote(aref);
 
     if (note != null && aref.tiid != null) {
       if (note.block[aref.tiid] != null) {
@@ -51,9 +49,9 @@ class StaticTransclusionRun implements IptRun {
   }
 
   @override
-  TextSpan renderTransclusion(Repo repo) {
+  TextSpan renderTransclusion(Function subscribeChild) {
     var text = "";
-    var t = getTranscludedText(repo);
+    var t = getTranscludedText();
     List<TextSpan> elements = [];
     // Plain text/ leaf of Interplanetary text
     if (t.length <= 1) {
@@ -62,7 +60,7 @@ class StaticTransclusionRun implements IptRun {
     //Interplanetary text
     else {
       for (var ipte in iptRuns) {
-        elements.add(ipte.renderTransclusion(repo));
+        elements.add(ipte.renderTransclusion(subscribeChild));
       }
     }
     return TextSpan(

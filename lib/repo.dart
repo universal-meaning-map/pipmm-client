@@ -14,7 +14,6 @@ class Repo with ChangeNotifier {
   Repo();
 
   static void addNoteForCid(String cid, Note? note) {
-    //log("addNoteForCid");
     if (Utils.cidIsValid(cid) == false) {
       throw ("Empty cid can't arrive here");
     }
@@ -41,6 +40,7 @@ class Repo with ChangeNotifier {
       iids[iid]?.status = RequestStatus.missing;
     } else {
       iids[iid]?.status = RequestStatus.loaded;
+      updateSubscriptorsToCid(iid, cid);
     }
 
     if (oldStatus != iids[iid]?.status) {
@@ -49,18 +49,7 @@ class Repo with ChangeNotifier {
     //log("Added iid " +iid +"CID: " +cid +" Status: " +iids[iid]!.status.toString());
   }
 
-  static addSubscriptor(String cidOrIid, Function? onNotifyUpdate) {
-    if (onNotifyUpdate == null) {
-      return;
-    }
-    if (subscriptors[cidOrIid] == null) {
-      subscriptors[cidOrIid] = [];
-    }
-    subscriptors[cidOrIid]!.add(onNotifyUpdate);
-  }
-
-  static CidWrap getNoteWrapByCid(String cid, Function notifyUpdate) {
-    addSubscriptor(cid, notifyUpdate);
+  static CidWrap getNoteWrapByCid(String cid) {
     if (Utils.cidIsValid(cid) == false) {
       return CidWrap.invalid(cid);
     }
@@ -74,8 +63,7 @@ class Repo with ChangeNotifier {
     return cids[cid]!;
   }
 
-  static IidWrap getCidWrapByIid(String iid, Function? notifyUpdate) {
-    addSubscriptor(iid, notifyUpdate);
+  static IidWrap getCidWrapByIid(String iid) {
     if (Utils.iidIsValid(iid) == false) {
       return IidWrap.invalid(iid);
     }
@@ -95,7 +83,7 @@ class Repo with ChangeNotifier {
   }
 
   static IidWrap forceRequest(String iid) {
-    var wrap = getCidWrapByIid(iid, null); //ensure is created first
+    var wrap = getCidWrapByIid(iid); //ensure is created first
     print("current status for: " + iid + wrap.status.toString());
     iids[iid]!.status = RequestStatus.needed;
     return wrap;
@@ -111,7 +99,6 @@ class Repo with ChangeNotifier {
         entry.status = RequestStatus.requested;
       }
     });
-
     //print("Server requesting " + iidsToLoad.toString());
 
     if (iidsToLoad.isEmpty) {
@@ -135,7 +122,6 @@ class Repo with ChangeNotifier {
     var uri = Uri.parse(iidsEndPoint);
     try {
       var result = await http.get(uri);
-
       Map<String, dynamic> body = json.decode(result.body);
       //log(body.toString());
       Map<String, dynamic> cids = body["data"]["cids"];
@@ -146,8 +132,8 @@ class Repo with ChangeNotifier {
           if (Utils.blockIsValid(blocks[cid])) {
             Map<String, dynamic> block = blocks[cid];
             Note note = Note(cid: cid, block: block);
-            addNoteForCid(cid, note);
 
+            addNoteForCid(cid, note);
             //List<String> dependencies = [];
             // dependencies.addAll(Utils.getIddTypesForBlock(block));
           }
@@ -156,18 +142,60 @@ class Repo with ChangeNotifier {
     } catch (e) {
       print("Failed to connect to server: " +
           uri.toString() +
-          "Error: " +
+          " Error: " +
           e.toString());
     }
   }
 
-  static notifySubscriptors(String cidOrIid) {
-    if (subscriptors[cidOrIid] != null) {
-      for (var s in subscriptors[cidOrIid]!) {
-        s();
+  static addSubscriptor(String cidOrIid, Function? onNotifyUpdate) {
+    if (onNotifyUpdate == null) {
+      return;
+    }
+    if (subscriptors[cidOrIid] == null) {
+      subscriptors[cidOrIid] = [];
+    }
+    subscriptors[cidOrIid]!.add(onNotifyUpdate);
+  }
+
+/*
+  static removeSubscriptor(String cidOrIid, Function onNotifyUpdate) {
+    if (subscriptors[cidOrIid] == null) return;
+    for (var i = 0; i <= subscriptors[cidOrIid]!.length; i++) {
+      if (identical(subscriptors[cidOrIid]![i], onNotifyUpdate)) {
+        subscriptors[cidOrIid]!.removeAt(i);
+        print("Removing: " + cidOrIid);
       }
     }
-    print(subscriptors.length);
+  }
+  */
+
+  static updateSubscriptorsToCid(String iid, String cid) {
+    if (subscriptors[iid] == null) return;
+
+    for (var s in subscriptors[iid]!) {
+      addSubscriptor(cid, s);
+    }
+  }
+
+  static notifySubscriptors(String cidOrIid) {
+    if (subscriptors[cidOrIid] == null) {
+      return;
+    }
+
+    var i = 0;
+    List<int> failed = [];
+    for (var s in subscriptors[cidOrIid]!) {
+      try {
+        s();
+        i++;
+      } catch (e) {
+        print(i.toString()+ ": Failed to run update function " + e.toString());
+        failed.add(i);
+      }
+    }
+    for (var i = 0; i < failed.length; i++) {
+      subscriptors[cidOrIid]!.removeAt(failed[i]);
+    }
   }
 }
 
