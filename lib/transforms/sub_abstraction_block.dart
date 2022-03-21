@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
-import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/dynamic_transclusion_run.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
@@ -9,17 +8,14 @@ import 'package:ipfoam_client/utils.dart';
 class SubAbstractionBlock implements IptRender, IptTransform {
   AbstractionReference aref = AbstractionReference.fromText("");
   int level = 0;
-  final Repo repo;
   Function onTap;
-  Function onRepoUpdate;
 
   @override
-  String transformIid =Note.iidSubAbstractionBlock;
+  String transformIid = Note.iidSubAbstractionBlock;
   @override
   List<dynamic> arguments;
-  
 
-  SubAbstractionBlock(this.arguments, this.repo, this.onTap, this.onRepoUpdate) {
+  SubAbstractionBlock(this.arguments, this.onTap) {
     processArguments();
   }
 
@@ -50,12 +46,18 @@ class SubAbstractionBlock implements IptRender, IptTransform {
   void updateChildren() {}
 
   @override
-  TextSpan renderTransclusion(repo) {
-    var note = Utils.getNote(aref, onRepoUpdate);
+  TextSpan renderTransclusion(Function subscribeChild) {
+    if (aref.isIid()) {
+      subscribeChild(aref.iid);
+    } else {
+      if (aref.isCid()) {
+        subscribeChild(aref.cid);
+      }
+    }
+    var note = Utils.getNote(aref);
 
     List<TextSpan> blocks = [];
 
-  
     if (note != null) {
       if (note.block[Note.iidPropertyName]) {
         blocks.add(renderTitle(note.block[Note.iidPropertyName]));
@@ -63,23 +65,22 @@ class SubAbstractionBlock implements IptRender, IptTransform {
       }
       if (note.block[Note.iidPropertyAbstract]) {
         blocks.add(renderAbstract(
-            note.block[Note.iidPropertyAbstract], repo));
+            note.block[Note.iidPropertyAbstract], subscribeChild));
         blocks.add(renderLineJump());
       }
       if (note.block[Note.iidPropertyView]) {
-        blocks.add(
-            renderView(note.block[Note.iidPropertyView], repo));
+        blocks
+            .add(renderView(note.block[Note.iidPropertyView], subscribeChild));
         blocks.add(renderLineJump());
       }
       return TextSpan(children: blocks);
     }
-    
 
     return TextSpan(
-        text: "<Sub-abstraction block. Failed to load "+ aref.origin +">",
+        text: "<Sub-abstraction block. Failed to load " + aref.origin + ">",
         style: TextStyle(
-         // fontWeight: FontWeight.w300,
-        ));
+            // fontWeight: FontWeight.w300,
+            ));
   }
 
   TextSpan renderLineJump() {
@@ -104,7 +105,7 @@ class SubAbstractionBlock implements IptRender, IptTransform {
     return TextStyle(
         fontWeight: titleFontWeightByLevel(),
         fontSize: titleFontSizeByLevel(),
-        color: const Color.fromRGBO(50,50,50,1),
+        color: const Color.fromRGBO(50, 50, 50, 1),
         height: 1.2);
   }
 
@@ -112,20 +113,25 @@ class SubAbstractionBlock implements IptRender, IptTransform {
     return TextSpan(text: str, style: titleStyleByLevel());
   }
 
-  TextSpan renderAbstract(List<String> ipt, repo) {
-    var a = IptRoot(ipt, onTap, onRepoUpdate);
+  TextSpan renderAbstract(List<String> ipt, Function subscribeChild) {
+    // var a = IptRoot(ipt, onTap));
+    var iptRuns = IPTFactory.makeIptRuns(ipt, onTap);
 
-    var text = a.renderIPT(repo);
+    List<TextSpan> elements = [];
+    for (var ipte in iptRuns) {
+      elements.add(ipte.renderTransclusion(subscribeChild));
+    }
+
     return TextSpan(
-        children: text,
+        children: elements,
         style: const TextStyle(
             //fontWeight: FontWeight.w300,
             fontStyle: FontStyle.italic,
             color: Colors.grey));
   }
 
-  TextSpan renderView(List<String> ipt, repo) {
-    var iptRuns = IPTFactory.makeIptRuns(ipt, onTap, onRepoUpdate);
+  TextSpan renderView(List<String> ipt, Function subscribeChild) {
+    var iptRuns = IPTFactory.makeIptRuns(ipt, onTap);
 
     List<TextSpan> elements = [];
     for (var i = 0; i < iptRuns.length; i++) {
@@ -143,7 +149,7 @@ class SubAbstractionBlock implements IptRender, IptTransform {
           (iptRuns[i] as DynamicTransclusionRun).arguments = newArguments;
         }
       }
-      elements.add(run.renderTransclusion(repo));
+      elements.add(run.renderTransclusion(subscribeChild));
     }
 
     return TextSpan(
