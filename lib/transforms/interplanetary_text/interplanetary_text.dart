@@ -19,79 +19,77 @@ class IPTFactory {
     return run.substring(0, 1) == "[" && run.substring(run.length - 1) == "]";
   }
 
-  static IptRun makeIptRun(String run, Function onTap, Function onRepoUpdate) {
+  static IptRun makeIptRun(String run, Function onTap) {
     if (IPTFactory.isRunATransclusionExpression(run)) {
       List<String> expr = json.decode(run);
 
       if (expr.length == 1) {
-        return StaticTransclusionRun(expr, onTap, onRepoUpdate);
+        return StaticTransclusionRun(expr, onTap);
       }
       if (expr.length > 1) {
-        return DynamicTransclusionRun(expr, onTap, onRepoUpdate);
+        return DynamicTransclusionRun(expr, onTap);
       }
     }
     return PlainTextRun(run);
   }
 
-  static IptRun makeIptRunFromExpr(
-      List<dynamic> expr, Function onTap, Function onRepoUpdate) {
+  static IptRun makeIptRunFromExpr(List<dynamic> expr, Function onTap) {
     if (expr.length == 1) {
-      return StaticTransclusionRun(expr, onTap, onRepoUpdate);
+      return StaticTransclusionRun(expr, onTap);
     }
     if (expr.length > 1) {
-      return DynamicTransclusionRun(expr, onTap, onRepoUpdate);
+      return DynamicTransclusionRun(expr, onTap);
     }
 
     return PlainTextRun("empty");
   }
 
-  static List<IptRun> makeIptRuns(
-      List<String> ipt, Function onTap, Function onRepoUpdate) {
+  static List<IptRun> makeIptRuns(List<String> ipt, Function onTap) {
     List<IptRun> iptRuns = [];
     for (var run in ipt) {
-      iptRuns.add(IPTFactory.makeIptRun(run, onTap, onRepoUpdate));
+      iptRuns.add(IPTFactory.makeIptRun(run, onTap));
     }
     return iptRuns;
   }
 
-  static RootTransform getRootTransform(
-      List<dynamic> expr, Function onTap, Function onRepoUpdate) {
-    var iptRun = IPTFactory.makeIptRunFromExpr(expr, onTap, onRepoUpdate);
+  static RootTransform getRootTransform(List<dynamic> expr, Function onTap) {
+    var iptRun = IPTFactory.makeIptRunFromExpr(expr, onTap);
 
     if (iptRun.isDynamicTransclusion()) {
       var dynamicRun = iptRun as DynamicTransclusionRun;
 
       if (dynamicRun.transformAref.iid == Note.iidColumnNavigator) {
         return ColumnNavigator(
-          arguments: dynamicRun.arguments,
-          key: const ValueKey("PageNavigator"),
-        );
+            arguments: dynamicRun.arguments,
+            key: const ValueKey("PageNavigator"));
       }
       if (dynamicRun.transformAref.iid == Note.iidNoteViewer) {
-        return NoteViewer(arguments: dynamicRun.arguments, onTap: onTap);
+        return NoteViewer(
+            arguments: dynamicRun.arguments,
+            onTap: onTap,
+            key: ValueKey(dynamicRun.arguments));
       }
 
-      return IptRoot.fromExpr(expr, onTap, onRepoUpdate);
+      return IptRoot.fromExpr(expr, onTap, ValueKey(expr.toString()));
     } else if (iptRun.isStaticTransclusion()) {
       var staticRun = iptRun as StaticTransclusionRun;
 
-      return IptRoot.fromExpr(expr, onTap, onRepoUpdate);
+      return IptRoot.fromExpr(expr, onTap, ValueKey(expr.toString()));
     }
-    return IptRoot.fromExpr(expr, onTap, onRepoUpdate);
+    return IptRoot.fromExpr(expr, onTap, ValueKey(expr.toString()));
   }
 }
 
 abstract class RootTransform implements Widget {}
 
 abstract class IptRun implements IptRender {
-  List<IptRun> iptRuns = [];
   bool isPlainText();
   bool isStaticTransclusion();
   bool isDynamicTransclusion();
 }
 
 abstract class IptRender {
-  TextSpan renderTransclusion(Repo repo);
+  TextSpan renderTransclusion(Function subscribeChild);
 }
 
 abstract class IptTransform {
@@ -99,38 +97,58 @@ abstract class IptTransform {
   String transformIid = "";
 }
 
-class IptRoot extends StatelessWidget implements RootTransform {
+class IptRoot extends StatefulWidget implements RootTransform {
   List<String> ipt = [];
   List<IptRun> iptRuns = [];
 
-  @override
-  updateArguments(List<dynamic> args, onTap, Function onRepoUpdate) {
-    iptRuns = [IPTFactory.makeIptRunFromExpr(args, onTap, onRepoUpdate)];
-  }
-
-  IptRoot(this.ipt, onTap, Function onRepoUpdate) {
+  IptRoot(this.ipt, onTap, Key? key) : super(key: key) {
     onTap ??= Navigation.defaultOnTap;
-    iptRuns = IPTFactory.makeIptRuns(ipt, onTap, onRepoUpdate);
+    iptRuns = IPTFactory.makeIptRuns(ipt, onTap);
   }
 
-  IptRoot.fromRun(String jsonStr, onTap, onRepoUpdate) {
+  IptRoot.fromRun(String jsonStr, onTap, Key? key) : super(key: key) {
     onTap ??= Navigation.defaultOnTap;
 
     List<String> expr = json.decode(jsonStr);
 
-    iptRuns = [IPTFactory.makeIptRunFromExpr(expr, onTap, onRepoUpdate)];
+    iptRuns = [IPTFactory.makeIptRunFromExpr(expr, onTap)];
   }
 
-  IptRoot.fromExpr(List<dynamic> expr, onTap, onRepoUpdate) {
-    iptRuns = [IPTFactory.makeIptRunFromExpr(expr, onTap, onRepoUpdate)];
+  IptRoot.fromExpr(List<dynamic> expr, onTap, Key? key) : super(key: key) {
+    iptRuns = [IPTFactory.makeIptRunFromExpr(expr, onTap)];
   }
 
-  List<TextSpan> renderIPT(repo) {
+  List<TextSpan> renderIPT(subscribeChild) {
     List<TextSpan> elements = [];
     for (var ipte in iptRuns) {
-      elements.add(ipte.renderTransclusion(repo));
+      elements.add(ipte.renderTransclusion(subscribeChild));
     }
     return elements;
+  }
+
+  @override
+  State<IptRoot> createState() => _IptRootState();
+}
+
+class _IptRootState extends State<IptRoot> {
+  List<String> children = [];
+
+   @override
+  initState() {
+    super.initState();
+  }
+
+  subscribeChild(String cidOrIid) {
+    if (children.contains(cidOrIid)) {
+      return;
+    }
+    print("Child " + cidOrIid);
+    children.add(cidOrIid);
+    Repo.addSubscriptor(cidOrIid, onRepoUpdate);
+  }
+
+  onRepoUpdate() {
+    setState(() {});
   }
 
   @override
@@ -145,7 +163,7 @@ class IptRoot extends StatelessWidget implements RootTransform {
           fontWeight: FontWeight.w100,
           fontStyle: FontStyle.normal, //TODO: Use FontStyle.normal. Flutter bug
           height: 1.7),
-      children: renderIPT(repo),
+      children: widget.renderIPT(subscribeChild),
     ));
 
     return text;

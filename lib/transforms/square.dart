@@ -39,7 +39,6 @@ class Square {
   void onBridgeIid(String iid) {
     print("Pushing IID:" + iid + " from bridge");
     Repo.forceRequest(iid);
-
     Navigation.pushExpr(Navigation.makeColumnExpr(
         [Navigation.makeNoteViewerExpr(AbstractionReference.fromText(iid))]));
   }
