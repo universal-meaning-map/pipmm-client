@@ -50,6 +50,7 @@ class StaticTransclusionRun implements IptRun {
 
   @override
   TextSpan renderTransclusion(Function subscribeChild) {
+    subscribeChild(aref.iid);
     var text = "";
     var t = getTranscludedText();
     List<TextSpan> elements = [];

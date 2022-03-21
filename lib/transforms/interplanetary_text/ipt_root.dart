@@ -5,7 +5,6 @@ import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:provider/provider.dart';
 
-
 class IptRoot extends StatefulWidget implements RootTransform {
   List<String> ipt = [];
   List<IptRun> iptRuns = [];

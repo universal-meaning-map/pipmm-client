@@ -65,7 +65,7 @@ class IPTFactory {
         return NoteViewer(
             arguments: dynamicRun.arguments,
             onTap: onTap,
-            key: ValueKey(dynamicRun.arguments));
+            key: ValueKey(expr.toString()));
       }
 
       return IptRoot.fromExpr(expr, onTap, ValueKey(expr.toString()));
