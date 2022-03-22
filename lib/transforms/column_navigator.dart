@@ -27,13 +27,20 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
       double fullColumWidth = 600;
       double viewPortFractionOnMobile = 0.9;
       double columnWidth = fullColumWidth;
+      double columnRightSidePadding = 30;
+      double firstColumnRightSidePadding = 30;
+
 
       var f = fullColumWidth /
           constrains.maxWidth; //expands the viewportFraction lienearly
+      //Mobile
       if (constrains.maxWidth <
           fullColumWidth + fullColumWidth * (1 - viewPortFractionOnMobile)) {
         f = viewPortFractionOnMobile;
         columnWidth = f * fullColumWidth;
+        columnRightSidePadding = 5;
+        firstColumnRightSidePadding = 5;
+
       }
 
       var pageController = PageController(keepPage: true, viewportFraction: f);
@@ -51,24 +58,32 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
             newColumns.add(Navigation.makeNoteViewerExpr(aref));
             var expr = Navigation.makeColumnExpr(newColumns);
             Navigation.pushExpr(expr);
-
+            /* 
             double newOffset = 0;
             if (constrains.maxWidth < newColumns.length * columnWidth) {
               newOffset = newColumns.length * columnWidth - constrains.maxWidth;
             }
 
-              pageController.animateTo(newOffset,
+            pageController.animateTo(newOffset,
                   duration: const Duration(milliseconds: 350),
                   curve: Curves.easeInOutQuad);
-            
+            */
+          }
+          double columnLeftSidePadding = 0;
+          if(index == 0){
+            columnLeftSidePadding = firstColumnRightSidePadding;
           }
 
           return Padding(
             key: Key(index.toString()),
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            padding: EdgeInsets.fromLTRB(columnLeftSidePadding, 0, columnRightSidePadding, 0),
             child: ListView(
               children: [
-                IPTFactory.getRootTransform(columnsExpr[index], onTap)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
+                  child:
+                      IPTFactory.getRootTransform(columnsExpr[index], onTap),
+                )
               ],
             ),
           );
