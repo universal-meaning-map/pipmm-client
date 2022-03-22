@@ -1,10 +1,8 @@
 import 'dart:collection';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/note.dart';
-import 'package:ipfoam_client/transforms/abstraction_reference_link.dart';
 import 'package:ipfoam_client/transforms/hyperlink.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/ipt_root.dart';
@@ -32,7 +30,6 @@ class NoteViewer extends StatefulWidget implements RootTransform {
 class _NoteViewerState extends State<NoteViewer> {
   @override
   initState() {
-
     super.initState();
     Repo.addSubscriptor(widget.iid, onRepoUpdate);
     subscribeToProperties();
@@ -57,7 +54,16 @@ class _NoteViewerState extends State<NoteViewer> {
         }
       }
     }
-  
+  }
+
+  List<String> children = [];
+
+  subscribeChild(String cidOrIid) {
+    if (children.contains(cidOrIid)) {
+      return;
+    }
+    children.add(cidOrIid);
+    Repo.addSubscriptor(cidOrIid, onRepoUpdate);
   }
 
   String getStatusText(String? iid, String? cid, Note? note) {
@@ -69,28 +75,39 @@ class _NoteViewerState extends State<NoteViewer> {
         note.toString();
   }
 
-  Widget buildPropertyRow(String typeIid, dynamic content, Repo repo) {
+  Widget buildPropertyRow(String typeIid, dynamic content) {
     Note? typeNote;
     String propertyName = typeIid;
+    subscribeChild(typeIid);
     String? cid = Repo.getCidWrapByIid(typeIid).cid;
     if (cid != null) {
       typeNote = Repo.getNoteWrapByCid(cid).note;
       if (typeNote != null) {
         propertyName = typeNote.block[Note.primitiveDefaultName];
       }
-    } else {}
+    }
 
-    return Container(
-        child: Column(
+    if (typeNote == null) {
+      return Column(
+        children: [
+          buildPropertyText(typeIid),
+          buildSpacing(10),
+        ],
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+      );
+    }
+
+    return Column(
       children: [
         buildPropertyText(propertyName),
         buildSpacing(2),
-        buildContentByType(typeNote, content, repo),
+        buildContentByType(typeNote, content),
         buildSpacing(10),
       ],
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
-    ));
+    );
   }
 
   Widget buildSpacing(double space) {
@@ -111,10 +128,10 @@ class _NoteViewerState extends State<NoteViewer> {
         ));
   }
 
-  Widget buildContentByType(Note? typeNote, dynamic content, Repo repo) {
-    if (typeNote != null) {
+  Widget buildContentByType(Note typeNote, dynamic content) {
+    if (content != null) {
       if (Utils.typeIsStruct(typeNote)) {
-        return buildStruct(typeNote, content, repo);
+        return buildStruct(typeNote, content);
       } else if (typeNote.block[Note.primitiveConstrains] != null) {
         //STRING
         if (Utils.getBasicType(typeNote) == Note.basicTypeString) {
@@ -122,30 +139,31 @@ class _NoteViewerState extends State<NoteViewer> {
         //Abstraction reference link
         else if (Utils.getBasicType(typeNote) ==
             Note.basicTypeAbstractionReference) {
-          return AbstractionReferenceLink(
-              aref: AbstractionReference.fromText(content.toString()));
+          return IptRoot.fromExpr(
+              [content.toString()], widget.onTap, ValueKey(content.toString()));
+          //return AbstractionReferenceLink(aref: AbstractionReference.fromText(content.toString()));
         }
 
         // List of Abstraction reference links
         else if (Utils.getBasicType(typeNote) ==
             Note.basicTypeAbstractionReferenceList) {
-          List<AbstractionReferenceLink> items = [];
+          List<IptRoot> items = [];
           content.forEach((element) {
-            items.add(AbstractionReferenceLink(
-                aref: AbstractionReference.fromText(element.toString())));
+            items.add(IptRoot.fromExpr([element.toString()], widget.onTap,
+                ValueKey(content.toString())));
           });
 
-          return ListView(
+          return Column(
             children: items,
-            shrinkWrap: true,
-            scrollDirection: Axis.vertical,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
           );
         } else if (Utils.getBasicType(typeNote) == Note.basicTypeUrl) {
           return Hyperlink(url: content.toString());
         } else if (Utils.getBasicType(typeNote) == Note.basicTypeBoolean) {
-          return buildContentRaw(typeNote, content.toString());
+          return buildContentRaw(typeNote, content);
         } else if (Utils.getBasicType(typeNote) == Note.basicTypeDate) {
-          return buildContentRaw(typeNote, content.toString());
+          return buildContentRaw(typeNote, content);
         } else if (Utils.getBasicType(typeNote) ==
             Note.basicTypeInterplanetaryText) {
           List<String> ipt = [];
@@ -186,9 +204,16 @@ class _NoteViewerState extends State<NoteViewer> {
       return Text(getStatusText(widget.iid, iidWrap.cid, cidWrap.note));
     }
 
-    var properties = cidWrap.note!.block;
+    List<Widget> items = [];
+
+/*
+    cidWrap.note!.block.forEach((key, value) {
+      items.add(buildPropertyRow(key, value));
+    });
+*/
 
 // Sorting the properties based on how long the content is
+    var properties = cidWrap.note!.block;
     var sortedKeys = properties.keys.toList(growable: false)
       ..sort((k1, k2) => properties[k1]
           .toString()
@@ -198,10 +223,8 @@ class _NoteViewerState extends State<NoteViewer> {
     LinkedHashMap sortedMap = LinkedHashMap.fromIterable(sortedKeys,
         key: (k) => k, value: (k) => properties[k]);
 
-    List<Widget> items = [];
-
     sortedMap.forEach((key, value) {
-      items.add(buildPropertyRow(key, value, repo));
+      items.add(buildPropertyRow(key, value));
     });
 
     return ListView(
@@ -212,18 +235,17 @@ class _NoteViewerState extends State<NoteViewer> {
         scrollDirection: Axis.vertical);
   }
 
-  buildStruct(Note? typeNote, dynamic content, Repo repo) {
+  Widget buildStruct(Note? typeNote, dynamic content) {
     List<Widget> items = [];
-
     content!.forEach((key, value) {
-      items.add(buildPropertyRow(key, value, repo));
+      items.add(buildPropertyRow(key, value));
     });
-    //return Text("Struct");
-    return ListView(
-      //shrinkWrap: true,
-      scrollDirection: Axis.vertical,
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-      children: items,
-    );
+
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+            children: items,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start));
   }
 }
