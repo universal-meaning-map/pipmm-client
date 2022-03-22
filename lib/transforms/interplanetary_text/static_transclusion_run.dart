@@ -35,7 +35,14 @@ class StaticTransclusionRun implements IptRun {
 
     if (note != null) {
       if (aref.tiid == null) {
-        aref.tiid = Config.transclusionPropertiesPriority[0];
+        //If transclusion property is not defined we use the properties defined in the config
+        for (var propertyToTransclude
+            in Config.transclusionPropertiesPriority) {
+          if (note.block[propertyToTransclude] != null) {
+            aref.tiid = propertyToTransclude;
+            break;
+          }
+        }
       }
       if (note.block[aref.tiid] != null) {
         //TODO verify what property type is it
