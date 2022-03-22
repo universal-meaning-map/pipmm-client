@@ -29,8 +29,8 @@ class Square {
       }
     });
 
-    config.loadConfig(() {
-      Repo.remoteServer = config.remoteServer;
+    Config.loadConfig(() {
+      Repo.remoteServer = Config.remoteServer;
       onConfigLoaded();
       processRoute();
     });
@@ -57,7 +57,7 @@ class Square {
       bridge.startWs(onIid: onBridgeIid, port: websocketsPort);
     }
     var runEncoded = uri.queryParameters['expr'];
-    runEncoded ??= config.defaultExpr;
+    runEncoded ??= Config.defaultExpr;
 
     var run = Uri.decodeFull(runEncoded);
 

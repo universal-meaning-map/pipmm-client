@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/color_utils.dart';
+import 'package:ipfoam_client/config.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/utils.dart';
@@ -32,7 +33,10 @@ class StaticTransclusionRun implements IptRun {
   List<String> getTranscludedText() {
     var note = Utils.getNote(aref);
 
-    if (note != null && aref.tiid != null) {
+    if (note != null) {
+      if (aref.tiid == null) {
+        aref.tiid = Config.transclusionPropertiesPriority[0];
+      }
       if (note.block[aref.tiid] != null) {
         //TODO verify what property type is it
         try {
