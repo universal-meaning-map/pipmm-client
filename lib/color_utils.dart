@@ -21,8 +21,21 @@ double strToHue(String base32Source) {
 }
 
 Color getBackgroundColor(String source) {
-  double saturation = 0.5;
-  double lightness = 0.75;
+  double saturation = 1; //0 black and white, 1 normal
+  double lightness = 0.5; //0 black, 0.5 normal,  1 white
+  Color tintColor = Colors.yellow;
+  double tintAmount = 0.5; //0 no tint applied, 1 totally tinted
+  double opacity = 0.4; //0 transparent, 1 normal
+  double hue = strToHue(source);
+  HSLColor hsl = HSLColor.fromAHSL(opacity, hue, saturation, lightness);
+  Color rgb = hsl.toColor();
+  Color tinted = dye(rgb, tintColor, tintAmount);
+  return tinted;
+}
+
+Color getUnderlineColor(String source) {
+  double saturation = 0.8;
+  double lightness = 0.5;
   double hue = strToHue(source);
   HSLColor hsl = HSLColor.fromAHSL(1, hue, saturation, lightness);
   Color rgb = hsl.toColor();

@@ -85,10 +85,15 @@ class StaticTransclusionRun implements IptRun {
         style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w400,
+            //decoration: TextDecoration.underline,
+            //decorationColor: getUnderlineColor(aref.origin),
+           // decorationThickness: 2, //doesn't seem to have any effect
             background: Paint()
-              ..strokeWidth = 10.0
+             // ..strokeWidth = 10.0
+              //..strokeJoin = StrokeJoin.round
               ..color = getBackgroundColor(aref.origin)
               ..style = PaintingStyle.fill
-              ..strokeJoin = StrokeJoin.round));
+              
+            ));
   }
 }
