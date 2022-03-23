@@ -3,6 +3,7 @@ import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/plain_text_run.dart';
+import 'package:ipfoam_client/transforms/ipt_hyperlink.dart';
 import 'package:ipfoam_client/transforms/sub_abstraction_block.dart';
 import 'package:ipfoam_client/utils.dart';
 
@@ -68,6 +69,9 @@ class DynamicTransclusionRun implements IptRun {
       //TODO
     } else if (transformId == Note.transSubAbstractionBlock) {
       transform = SubAbstractionBlock(arguments, onTap);
+    }
+    else if (transformId == Note.transIptHyperlink) {
+      transform = IptHyperlink(arguments, onTap);
     }
 
     return transform.renderTransclusion(subscribeChild);

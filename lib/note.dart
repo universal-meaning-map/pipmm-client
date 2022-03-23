@@ -26,7 +26,8 @@ class Note {
   static const String iidNoteViewer = midXavi+ "k7dwg62a";
   static const String iidSubAbstractionBlock = midXavi + "2lf4dbua";
   static const String transSubAbstractionBlock = "sub-abstraction-block";
-
+  static const String transIptHyperlink = "ipt-hyperlink";
+  static const String iidIptHyperlink = midXavi + "4z6h5u4a";
   static const String transFilter = "filter";
 
   String cid;
