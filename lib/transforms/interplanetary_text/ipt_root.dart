@@ -63,7 +63,7 @@ class _IptRootState extends State<IptRoot> {
     final repo = Provider.of<Repo>(context);
     var text = SelectableText.rich(TextSpan(
       style: const TextStyle(
-          fontSize: 14,
+          fontSize: 15,
           color: Colors.black,
           fontFamily: "FiraCode",
           letterSpacing: -0.5,
