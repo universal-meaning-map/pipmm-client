@@ -43,8 +43,6 @@ class SubAbstractionBlock implements IptRender, IptTransform {
     return l;
   }
 
-  void updateChildren() {}
-
   @override
   TextSpan renderTransclusion(Function subscribeChild) {
     if (aref.isIid()) {
