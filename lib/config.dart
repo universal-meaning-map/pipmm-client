@@ -7,7 +7,7 @@ class Config {
   static String defaultExpr = "";
   static String title = "";
   static List<String> transclusionPropertiesPriority= [];
-
+  static String openAbstractionsInTransform = "";
   static loadConfig(Function onLoaded) async {
     var data = await rootBundle.loadString('config.json');
     final jsonResult = jsonDecode(data);
@@ -16,6 +16,7 @@ class Config {
     defaultExpr = jsonResult["defaultExpr"];
     title = jsonResult["title"];
     transclusionPropertiesPriority = jsonResult["transclusionPropertiesPriority"];
+    openAbstractionsInTransform = jsonResult["openAbstractionsInTransform"];
 
     onLoaded();
   }

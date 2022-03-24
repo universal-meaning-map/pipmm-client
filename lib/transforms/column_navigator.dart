@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ipfoam_client/config.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
@@ -55,7 +56,7 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
             if (newColumns.length > index + 1) {
               newColumns.removeRange(index + 1, newColumns.length);
             }
-            newColumns.add(Navigation.makeNoteViewerExpr(aref));
+            newColumns.add(Navigation.makeTransformExpr(Config.openAbstractionsInTransform, aref));
             var expr = Navigation.makeColumnExpr(newColumns);
             Navigation.pushExpr(expr);
             /* 

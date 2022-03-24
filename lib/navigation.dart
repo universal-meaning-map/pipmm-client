@@ -28,6 +28,11 @@ class Navigation with ChangeNotifier {
     return [Note.iidNoteViewer, aref.iid];
   }
 
+  static List<dynamic> makeTransformExpr(String transformIid, AbstractionReference aref) {
+    return [transformIid, aref.iid];
+  }
+
+
   static void defaultOnTap(AbstractionReference aref) {
     print("Default tap:" + aref.origin);
 
