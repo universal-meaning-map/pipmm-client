@@ -10,6 +10,7 @@ class StaticTransclusionRun implements IptRun {
   late AbstractionReference aref;
   List<IptRun> iptRuns = [];
   Function onTap;
+  bool assumedTransclusionProperty = false;
 
   StaticTransclusionRun(List<dynamic> expr, this.onTap) {
     aref = AbstractionReference.fromText(expr[0]);
@@ -34,12 +35,13 @@ class StaticTransclusionRun implements IptRun {
     var note = Utils.getNote(aref);
 
     if (note != null) {
-      if (aref.tiid == null) {
+      if (aref.tiid == null || note.block[aref.tiid] == null) {
         //If transclusion property is not defined we use the properties defined in the config
         for (var propertyToTransclude
             in Config.transclusionPropertiesPriority) {
           if (note.block[propertyToTransclude] != null) {
             aref.tiid = propertyToTransclude;
+            assumedTransclusionProperty = true;
             break;
           }
         }
@@ -75,6 +77,18 @@ class StaticTransclusionRun implements IptRun {
         elements.add(ipte.renderTransclusion(subscribeChild));
       }
     }
+    var style = TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.w400,
+        //decoration: TextDecoration.underline,
+        //decorationColor: getUnderlineColor(aref.origin),
+        // decorationThickness: 2, //doesn't seem to have any effect
+        background: Paint()
+          // ..strokeWidth = 10.0
+          //..strokeJoin = StrokeJoin.round
+          ..color = getBackgroundColor(aref.origin)
+          ..style = PaintingStyle.fill);
+
     return TextSpan(
         text: text,
         children: elements,
@@ -82,18 +96,6 @@ class StaticTransclusionRun implements IptRun {
           ..onTap = () {
             onTap(aref);
           },
-        style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w400,
-            //decoration: TextDecoration.underline,
-            //decorationColor: getUnderlineColor(aref.origin),
-           // decorationThickness: 2, //doesn't seem to have any effect
-            background: Paint()
-             // ..strokeWidth = 10.0
-              //..strokeJoin = StrokeJoin.round
-              ..color = getBackgroundColor(aref.origin)
-              ..style = PaintingStyle.fill
-              
-            ));
+        style: style);
   }
 }
