@@ -61,11 +61,11 @@ class SubAbstractionBlock implements IptRender, IptTransform {
         blocks.add(renderTitle(note.block[Note.iidPropertyName]));
         blocks.add(renderLineJump());
       }
-      if (note.block[Note.iidPropertyAbstract]) {
+      /*if (note.block[Note.iidPropertyAbstract]) {
         blocks.add(renderAbstract(
             note.block[Note.iidPropertyAbstract], subscribeChild));
         blocks.add(renderLineJump());
-      }
+      }*/
       if (note.block[Note.iidPropertyView]) {
         blocks
             .add(renderView(note.block[Note.iidPropertyView], subscribeChild));
