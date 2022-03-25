@@ -5,19 +5,28 @@ import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/repo.dart';
 
 class Utils {
+  static List<String> primitiveTypes = primitiveTypes = [
+    Note.primitiveConstrains,
+    Note.primitiveDefaultName,
+    Note.primitiveIpldSchema,
+    Note.primitiveRepresents
+  ];
   static List<String> getIddTypesForBlock(Map<String, dynamic> block) {
     List<String> typesIids = [];
 
     block.forEach((key, value) {
-      List<String> primitiveTypes = [
-        Note.primitiveConstrains,
-        Note.primitiveDefaultName,
-        Note.primitiveIpldSchema,
-        Note.primitiveRepresents
-      ];
-      if (primitiveTypes.contains(key) == false) typesIids.add(key);
+      if (Utils.primitiveTypes.contains(key) == false) typesIids.add(key);
     });
     return typesIids;
+  }
+
+  static bool isPrimitiveType(iidOrPrimitiveTypeName) {
+    for (var t in Utils.primitiveTypes) {
+      if (iidOrPrimitiveTypeName == t) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static bool cidIsValid(String cid) {
@@ -80,10 +89,7 @@ class Utils {
     if (cid != null) {
       var noteWrap = Repo.getNoteWrapByCid(cid);
       note = noteWrap.note;
-    }else{
-    }
-
-   
+    } else {}
 
     return note;
   }
