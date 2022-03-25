@@ -69,8 +69,7 @@ class DynamicTransclusionRun implements IptRun {
       //TODO
     } else if (transformId == Note.transSubAbstractionBlock) {
       transform = SubAbstractionBlock(arguments, onTap);
-    }
-    else if (transformId == Note.transIptHyperlink) {
+    } else if (transformId == Note.transIptHyperlink) {
       transform = IptHyperlink(arguments, onTap);
     }
 

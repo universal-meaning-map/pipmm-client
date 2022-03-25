@@ -69,7 +69,7 @@ class _IptRootState extends State<IptRoot> {
           letterSpacing: -0.5,
           fontWeight: FontWeight.w100,
           fontStyle: FontStyle.normal, //TODO: Use FontStyle.normal. Flutter bug
-          height: 1.7),
+          height: 1.6),
       children: widget.renderIPT(subscribeChild),
     ));
 

@@ -135,6 +135,7 @@ class _NoteViewerState extends State<NoteViewer> {
       } else if (typeNote.block[Note.primitiveConstrains] != null) {
         //STRING
         if (Utils.getBasicType(typeNote) == Note.basicTypeString) {
+          //WHY IS THIS EMPTY?
         }
         //Abstraction reference link
         else if (Utils.getBasicType(typeNote) ==
