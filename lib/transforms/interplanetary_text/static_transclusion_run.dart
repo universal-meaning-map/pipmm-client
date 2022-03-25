@@ -71,6 +71,9 @@ class StaticTransclusionRun implements IptRun {
     if (t.length <= 1) {
       text = t[0];
     }
+    if(assumedTransclusionProperty){
+      text = "*"+text;
+    }
     //Interplanetary text
     else {
       for (var ipte in iptRuns) {
