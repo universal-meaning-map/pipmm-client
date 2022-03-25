@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ipfoam_client/color_utils.dart';
 import 'package:ipfoam_client/config.dart';
 import 'package:ipfoam_client/main.dart';
+import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/utils.dart';
 
@@ -11,6 +12,7 @@ class StaticTransclusionRun implements IptRun {
   List<IptRun> iptRuns = [];
   Function onTap;
   bool assumedTransclusionProperty = false;
+  bool notFoundNoteOrProperty = false;
 
   StaticTransclusionRun(List<dynamic> expr, this.onTap) {
     aref = AbstractionReference.fromText(expr[0]);
@@ -31,7 +33,9 @@ class StaticTransclusionRun implements IptRun {
     return false;
   }
 
-  List<String> getTranscludedText() {
+  List<String> getTranscludedIpt(Function subscribeChild) {
+    notFoundNoteOrProperty = false;
+    assumedTransclusionProperty = false;
     var note = Utils.getNote(aref);
 
     if (note != null) {
@@ -46,33 +50,46 @@ class StaticTransclusionRun implements IptRun {
           }
         }
       }
-      if (note.block[aref.tiid] != null) {
-        //TODO verify what property type is it
-        try {
-          //Transcluded text
-          return [note.block[aref.tiid] as String];
-        } catch (e) {
-          //Transcluded transclusion (ipt)
-          return note.block[aref.tiid];
+
+      if (Utils.isPrimitiveType(aref.tiid)) {
+        return [note.block[aref.tiid]];
+      }
+
+      if (aref.tiid != null && note.block[aref.tiid] != null) {
+        subscribeChild(aref.tiid);
+        var typeNote = Utils.getNote(AbstractionReference.fromText(aref.tiid!));
+        if (typeNote != null) {
+          if (Utils.getBasicType(typeNote) == Note.basicTypeString) {
+            return [note.block[aref.tiid]];
+          } else if (Utils.getBasicType(typeNote) ==
+              Note.basicTypeInterplanetaryText) {
+            return note.block[aref.tiid];
+          } else {}
         }
       }
     }
-
+    notFoundNoteOrProperty = true;
+    if (aref.liid != null) {
+      return [aref.liid!];
+    }
     return [aref.origin];
   }
 
   @override
   TextSpan renderTransclusion(Function subscribeChild) {
     subscribeChild(aref.iid);
+    var ipt = getTranscludedIpt(subscribeChild);
+
+    var iptRuns = IPTFactory.makeIptRuns(ipt, onTap);
+
     var text = "";
-    var t = getTranscludedText();
     List<TextSpan> elements = [];
     // Plain text/ leaf of Interplanetary text
-    if (t.length <= 1) {
-      text = t[0];
+    if (ipt.length <= 1) {
+      text = ipt[0];
     }
-    if(assumedTransclusionProperty){
-      text = "*"+text;
+    if (assumedTransclusionProperty) {
+      text = "*" + text;
     }
     //Interplanetary text
     else {
@@ -81,7 +98,7 @@ class StaticTransclusionRun implements IptRun {
       }
     }
     var style = TextStyle(
-        color: Colors.black,
+        color: notFoundNoteOrProperty ? Colors.red : Colors.black,
         fontWeight: FontWeight.w400,
         //decoration: TextDecoration.underline,
         //decorationColor: getUnderlineColor(aref.origin),
