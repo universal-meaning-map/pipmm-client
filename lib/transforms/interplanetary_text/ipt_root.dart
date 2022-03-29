@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:ipfoam_client/navigation.dart';
 import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
-import 'package:provider/provider.dart';
 
 class IptRoot extends StatefulWidget implements RootTransform {
   List<String> ipt = [];
@@ -60,7 +59,6 @@ class _IptRootState extends State<IptRoot> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = Provider.of<Repo>(context);
     var text = SelectableText.rich(TextSpan(
       style: const TextStyle(
           fontSize: 15,
@@ -68,7 +66,7 @@ class _IptRootState extends State<IptRoot> {
           fontFamily: "FiraCode",
           letterSpacing: -0.5,
           fontWeight: FontWeight.w100,
-          fontStyle: FontStyle.normal, //TODO: Use FontStyle.normal. Flutter bug
+          fontStyle: FontStyle.normal,
           height: 1.6),
       children: widget.renderIPT(subscribeChild),
     ));

@@ -7,7 +7,6 @@ import 'package:ipfoam_client/transforms/hyperlink.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/ipt_root.dart';
 import 'package:ipfoam_client/utils.dart';
-import 'package:provider/provider.dart';
 
 class NoteViewer extends StatefulWidget implements RootTransform {
   late String iid;
@@ -192,8 +191,6 @@ class _NoteViewerState extends State<NoteViewer> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = Provider.of<Repo>(context);
-
     IidWrap iidWrap = Repo.getCidWrapByIid(widget.iid);
 
     if (iidWrap.cid == null) {
@@ -230,7 +227,7 @@ class _NoteViewerState extends State<NoteViewer> {
 
     return ListView(
         padding: const EdgeInsets.all(8),
-        physics: ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         children: items,
         shrinkWrap: true,
         scrollDirection: Axis.vertical);

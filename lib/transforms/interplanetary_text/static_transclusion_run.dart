@@ -88,14 +88,14 @@ class StaticTransclusionRun implements IptRun {
     if (ipt.length <= 1) {
       text = ipt[0];
     }
-    if (assumedTransclusionProperty) {
-      text = "*" + text;
-    }
     //Interplanetary text
     else {
       for (var ipte in iptRuns) {
         elements.add(ipte.renderTransclusion(subscribeChild));
       }
+    }
+    if (assumedTransclusionProperty) {
+      text = "* " + text;
     }
     var style = TextStyle(
         color: notFoundNoteOrProperty ? Colors.red : Colors.black,
