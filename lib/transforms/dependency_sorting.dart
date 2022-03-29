@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
+import 'package:ipfoam_client/transforms/interplanetary_text/plain_text_run.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/static_transclusion_run.dart';
 import 'package:ipfoam_client/utils.dart';
 
@@ -31,10 +35,6 @@ class DependencySorting implements IptRender, IptTransform {
 
   processSelf(Note note, AbstractionReference selfAref, Function subscribeChild,
       int level) {
-    //if (level > 2) return;
-    if (note == null) {
-      return;
-    }
     dependencies[selfAref.iid!] ??= Dependency();
     // pir
     if (note.block[Note.iidPropertyPir] != null) {
@@ -96,10 +96,15 @@ class DependencySorting implements IptRender, IptTransform {
       }
     });
     if (dependencies[selfAref.iid] != null) {
-      print(spaceForLevel(level) +
+    /*  print(spaceForLevel(level) +
           dependencies[selfAref.iid]!.name +
           ", " +
-          dependencies[selfAref.iid]!.levels.toString());
+          dependencies[selfAref.iid]!.hasPointer.toString() + 
+          ", " +
+          dependencies[selfAref.iid]!.childrenWithPointer.toString() +
+          ", " +
+          dependencies[selfAref.iid]!.pir.toString());
+    */
     }
   }
 
@@ -129,7 +134,7 @@ class DependencySorting implements IptRender, IptTransform {
 
     print("\n\n\n");
 
-    return renderAsSortedList();
+    return renderAsSortedList(subscribeChild);
   }
 
   double getCompletnessScore(Dependency d) {
@@ -137,29 +142,36 @@ class DependencySorting implements IptRender, IptTransform {
         ? 1
         : d.childrenWithPointer / d.totalDependencies;
 
-    /* print(d.hasPointer.toString() +
-        " * (" +
-        childrenPointerPercentage.toString() +
-        " / " +
-        d.totalDependencies.toString() +
-        ") * " +
-        d.pir.toString());
-*/
-    return d.hasPointer * childrenPointerPercentage * d.pir;
+    var cs = d.hasPointer * childrenPointerPercentage * d.pir;
+    var dilution = 0.95;
+
+    double total = 0;
+
+    for (var l in d.levels) {
+      total = total + (pow( dilution, l) * (1 - cs));
+    }
+
+    return total;
   }
 
-  TextSpan renderAsSortedList() {
+  TextSpan renderAsSortedList(Function subscribeChild) {
+    var iptRuns = [];
     var mapEntries = dependencies.entries.toList()
       ..sort((a, b) {
         var aScore = getCompletnessScore(a.value);
         var bScore = getCompletnessScore(b.value);
-        return aScore.compareTo(bScore);
+        return bScore.compareTo(aScore);
       });
 
-    var t = "";
     mapEntries.forEach((e) {
-      t = t +
-          getCompletnessScore(e.value).toString() +
+      var prefix =
+          ((getCompletnessScore(e.value) * 10).round() / 10).toString() + "\t";
+
+      iptRuns.add(PlainTextRun(prefix));
+      iptRuns.add(
+          StaticTransclusionRun([e.key + "/" + Note.iidPropertyName], onTap));
+      iptRuns.add(PlainTextRun("\n"));
+      getCompletnessScore(e.value).toString() +
           " - " +
           e.value.name +
           " " +
@@ -167,8 +179,13 @@ class DependencySorting implements IptRender, IptTransform {
           "\n";
     });
 
+    List<TextSpan> elements = [];
+    for (var ipte in iptRuns) {
+      elements.add(ipte.renderTransclusion(subscribeChild));
+    }
+
     return TextSpan(
-        text: t,
+        children: elements,
         style: TextStyle(
             // fontWeight: FontWeight.w300,
             ));
