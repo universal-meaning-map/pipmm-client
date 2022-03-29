@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/note.dart';
+import 'package:ipfoam_client/transforms/dependency_sorting.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/interplanetary_text.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/plain_text_run.dart';
 import 'package:ipfoam_client/transforms/ipt_hyperlink.dart';
@@ -71,7 +72,9 @@ class DynamicTransclusionRun implements IptRun {
       transform = SubAbstractionBlock(arguments, onTap);
     } else if (transformId == Note.transIptHyperlink) {
       transform = IptHyperlink(arguments, onTap);
-    }
+    } else if (transformId == Note.transDependencySorting) {
+      transform = DependencySorting(arguments, onTap);
+    } 
 
     return transform.renderTransclusion(subscribeChild);
   }
