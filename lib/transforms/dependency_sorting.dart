@@ -9,7 +9,6 @@ import 'package:ipfoam_client/utils.dart';
 
 class DependencySorting implements IptRender, IptTransform {
   AbstractionReference aref = AbstractionReference.fromText("");
-  int level = 0;
   int maxLevel = 15;
   Function onTap;
   Map<String, Dependency> dependencies = {};
@@ -18,6 +17,7 @@ class DependencySorting implements IptRender, IptTransform {
   String transformIid = Note.iidDependencySorting;
   @override
   List<dynamic> arguments;
+  String? dependencyType;
 
   DependencySorting(this.arguments, this.onTap) {
     processArguments();
@@ -25,11 +25,14 @@ class DependencySorting implements IptRender, IptTransform {
 
   void processArguments() {
     //Note to transclude
-    if (arguments.length == 0) {
+    if (arguments.isEmpty) {
       aref = AbstractionReference.fromText("");
     }
 
     aref = AbstractionReference.fromText(arguments[0]);
+    if (arguments.length >= 2) {
+      dependencyType = arguments[1];
+    }
   }
 
   processSelf(Note note, AbstractionReference selfAref, Function subscribeChild,
@@ -39,7 +42,7 @@ class DependencySorting implements IptRender, IptTransform {
     }
     dependencies[selfAref.iid!] ??= Dependency();
     // pir
-    if(level ==0){
+    if (level == 0) {
       dependencies[selfAref.iid!]!.levels.add(0);
     }
     if (note.block[Note.iidPropertyPir] != null) {
@@ -53,54 +56,18 @@ class DependencySorting implements IptRender, IptTransform {
     }
 
     //each property
-    note.block.forEach((tiid, value) {
-      subscribeChild(tiid);
-      // List<String> dependencies = [];
-      var typeNote = Utils.getNote(AbstractionReference.fromText(tiid));
-      if (typeNote == null) {
-        return;
+    if (dependencyType != null) {
+      //only process explicit type
+      if (note.block[dependencyType] != null) {
+        processDependency(selfAref, dependencyType!, note.block[dependencyType],
+            level, subscribeChild);
       }
-
-      if (Utils.getBasicType(typeNote) == Note.basicTypeInterplanetaryText) {
-        //print(typeNote.block["defaultName"]);
-
-        for (var run in value) {
-          var iptRun = IPTFactory.makeIptRun(run, onTap);
-          if (iptRun.isStaticTransclusion()) {
-            var depAref = (iptRun as StaticTransclusionRun).aref;
-
-            //first time dependency
-            if (dependencies[depAref.iid] == null) {
-              if (depAref.isIid()) {
-                subscribeChild(depAref.iid);
-
-                var depNote = Utils.getNote(depAref);
-                if (depNote != null) {
-                  processSelf(depNote, depAref, subscribeChild, level + 1);
-                  //children pointers
-                }
-              }
-            }
-            //ref to itself are not dependencies
-            if (depAref.iid != selfAref.iid) {
-              //total dependencies
-              dependencies[selfAref.iid]!.totalDependencies =
-                  dependencies[selfAref.iid]!.totalDependencies + 1;
-              //level
-
-              if (dependencies[depAref.iid] != null) {
-                dependencies[depAref.iid]!.levels.add(level);
-                dependencies[selfAref.iid]!.childrenWithPointer +=
-                    dependencies[depAref.iid]!.hasPointer;
-              }
-            }
-          } else if (iptRun.isDynamicTransclusion()) {
-            print(
-                "Dependency sorting for dynamic transclusion not implemented");
-          }
-        }
-      }
-    });
+    } else {
+      // process all interplanetary text types
+      note.block.forEach((tiid, value) {
+        processDependency(selfAref, tiid, value, level, subscribeChild);
+      });
+    }
     if (dependencies[selfAref.iid] != null) {
       /*  print(spaceForLevel(level) +
           dependencies[selfAref.iid]!.name +
@@ -111,6 +78,55 @@ class DependencySorting implements IptRender, IptTransform {
           ", " +
           dependencies[selfAref.iid]!.pir.toString());
     */
+    }
+  }
+
+  processDependency(AbstractionReference selfAref, String tiid, dynamic value,
+      int level, Function subscribeChild) {
+    subscribeChild(tiid);
+    // List<String> dependencies = [];
+    var typeNote = Utils.getNote(AbstractionReference.fromText(tiid));
+    if (typeNote == null) {
+      return;
+    }
+
+    if (Utils.getBasicType(typeNote) == Note.basicTypeInterplanetaryText) {
+      //print(typeNote.block["defaultName"]);
+
+      for (var run in value) {
+        var iptRun = IPTFactory.makeIptRun(run, onTap);
+        if (iptRun.isStaticTransclusion()) {
+          var depAref = (iptRun as StaticTransclusionRun).aref;
+
+          //first time dependency
+          if (dependencies[depAref.iid] == null) {
+            if (depAref.isIid()) {
+              subscribeChild(depAref.iid);
+
+              var depNote = Utils.getNote(depAref);
+              if (depNote != null) {
+                processSelf(depNote, depAref, subscribeChild, level + 1);
+                //children pointers
+              }
+            }
+          }
+          //ref to itself are not dependencies
+          if (depAref.iid != selfAref.iid) {
+            //total dependencies
+            dependencies[selfAref.iid]!.totalDependencies =
+                dependencies[selfAref.iid]!.totalDependencies + 1;
+            //level
+
+            if (dependencies[depAref.iid] != null) {
+              dependencies[depAref.iid]!.levels.add(level);
+              dependencies[selfAref.iid]!.childrenWithPointer +=
+                  dependencies[depAref.iid]!.hasPointer;
+            }
+          }
+        } else if (iptRun.isDynamicTransclusion()) {
+          // print( "Dependency sorting for dynamic transclusion not implemented");
+        }
+      }
     }
   }
 
@@ -167,12 +183,13 @@ class DependencySorting implements IptRender, IptTransform {
     //var crs="0,4rs";
     iptRuns.add(PlainTextRun(withPad(crs, 5)));
 
-
     iptRuns
         .add(StaticTransclusionRun([iid + "/" + Note.iidPropertyName], onTap));
-        var namePad = dep.name==""?40-8:40; //for the ones missing name we pad the liid
+    var namePad = dep.name == ""
+        ? 40 - 8
+        : 40; //for the ones missing name we pad the liid
     iptRuns.add(PlainTextRun(addPad(dep.name, namePad) +
-        withPad(((getCompletnessScore(dep)* 10).round() / 10).toString(), 5) +
+        withPad(((getCompletnessScore(dep) * 10).round() / 10).toString(), 5) +
         withPad(dep.pir.toString(), 5) +
         withPad(dep.totalDependencies.toString(), 5) +
         "\n"));
@@ -206,7 +223,12 @@ class DependencySorting implements IptRender, IptTransform {
 
       var listCut = 0.05;
       if (getRequiredCareScore(mapEntries[i].value) < listCut) {
-        iptRuns.add(PlainTextRun("+" + (mapEntries.length - i).toString()+ " with RC < "+listCut.toString()+" and maxLevel "+ maxLevel.toString()));
+        iptRuns.add(PlainTextRun("+" +
+            (mapEntries.length - i).toString() +
+            " with RC < " +
+            listCut.toString() +
+            " and maxLevel " +
+            maxLevel.toString()));
         break;
       }
     }
