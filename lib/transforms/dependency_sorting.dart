@@ -55,6 +55,8 @@ class DependencySorting implements IptRender, IptTransform {
       dependencies[selfAref.iid]!.name = note.block[Note.iidPropertyName];
     }
 
+    dependencies[selfAref.iid]!.selfProcessed = true;
+
     //each property
     if (dependencyType != null) {
       //only process explicit type
@@ -68,36 +70,41 @@ class DependencySorting implements IptRender, IptTransform {
         processDependency(selfAref, tiid, value, level, subscribeChild);
       });
     }
-    if (dependencies[selfAref.iid] != null) {
-      /*  print(spaceForLevel(level) +
-          dependencies[selfAref.iid]!.name +
-          ", " +
-          dependencies[selfAref.iid]!.hasPointer.toString() + 
-          ", " +
-          dependencies[selfAref.iid]!.childrenWithPointer.toString() +
-          ", " +
-          dependencies[selfAref.iid]!.pir.toString());
-    */
-    }
+
+    //childrenWithPointer
+
+    dependencies.forEach((parentIid, dep) {
+      if (dependencies[parentIid] != null &&
+          dependencies[parentIid]!.childrenWithPointer == 0) {
+        for (var dependentIiid in dependencies[parentIid]!.dependenciesIIds) {
+          if (dependencies[dependentIiid] != null) {
+           
+            dependencies[parentIid]!.childrenWithPointer =
+                dependencies[parentIid]!.childrenWithPointer +
+                    dependencies[dependentIiid]!.hasPointer;
+          }
+        }
+      }
+    });
   }
 
   processDependency(AbstractionReference selfAref, String tiid, dynamic value,
       int level, Function subscribeChild) {
     subscribeChild(tiid);
     // List<String> dependencies = [];
+
     var typeNote = Utils.getNote(AbstractionReference.fromText(tiid));
     if (typeNote == null) {
       return;
     }
 
     if (Utils.getBasicType(typeNote) == Note.basicTypeInterplanetaryText) {
-      //print(typeNote.block["defaultName"]);
-
       for (var run in value) {
         var iptRun = IPTFactory.makeIptRun(run, onTap);
         if (iptRun.isStaticTransclusion()) {
           var depAref = (iptRun as StaticTransclusionRun).aref;
 
+          dependencies[selfAref.iid]!.dependenciesIIds.add(depAref.iid!);
           //first time dependency
           if (dependencies[depAref.iid] == null) {
             if (depAref.isIid()) {
@@ -106,7 +113,6 @@ class DependencySorting implements IptRender, IptTransform {
               var depNote = Utils.getNote(depAref);
               if (depNote != null) {
                 processSelf(depNote, depAref, subscribeChild, level + 1);
-                //children pointers
               }
             }
           }
@@ -115,12 +121,9 @@ class DependencySorting implements IptRender, IptTransform {
             //total dependencies
             dependencies[selfAref.iid]!.totalDependencies =
                 dependencies[selfAref.iid]!.totalDependencies + 1;
-            //level
-
             if (dependencies[depAref.iid] != null) {
+              //level
               dependencies[depAref.iid]!.levels.add(level);
-              dependencies[selfAref.iid]!.childrenWithPointer +=
-                  dependencies[depAref.iid]!.hasPointer;
             }
           }
         } else if (iptRun.isDynamicTransclusion()) {
@@ -138,12 +141,16 @@ class DependencySorting implements IptRender, IptTransform {
     return t;
   }
 
-  double getCompletnessScore(Dependency d) {
-    var childrenPointerPercentage = d.totalDependencies == 0
+  double getCildrenWithPointerPercentage(Dependency d) {
+    double childrenPointerPercentage = d.totalDependencies == 0
         ? 1
         : d.childrenWithPointer / d.totalDependencies;
 
-    var cs = d.hasPointer * childrenPointerPercentage * d.pir;
+    return childrenPointerPercentage;
+  }
+
+  double getCompletnessScore(Dependency d) {
+    var cs = d.hasPointer * getCildrenWithPointerPercentage(d) * d.pir;
     return cs;
   }
 
@@ -165,6 +172,13 @@ class DependencySorting implements IptRender, IptTransform {
     return total;
   }
 
+  double round(r, decimals) {
+    if (decimals == 1)
+      return (r * 100).round() / 100;
+    else
+      return (r * 10).round() / 10;
+  }
+
   String addPad(String str, int max) {
     var blank = "";
     for (var i = str.length; i < max; i++) {
@@ -179,19 +193,20 @@ class DependencySorting implements IptRender, IptTransform {
 
   List<dynamic> makeRow(String iid, Dependency dep) {
     var iptRuns = [];
-    var crs = ((getRequiredCareScore(dep) * 100).round() / 100).toString();
+    var crs = round(getRequiredCareScore(dep),2).toString();
     //var crs="0,4rs";
     iptRuns.add(PlainTextRun(withPad(crs, 5)));
 
     iptRuns
         .add(StaticTransclusionRun([iid + "/" + Note.iidPropertyName], onTap));
     var namePad = dep.name == ""
-        ? 40 - 8
-        : 40; //for the ones missing name we pad the liid
+        ? 35 - 8
+        : 35; //for the ones missing name we pad the liid
     iptRuns.add(PlainTextRun(addPad(dep.name, namePad) +
-        withPad(((getCompletnessScore(dep) * 10).round() / 10).toString(), 5) +
+        withPad(round(getCompletnessScore(dep),1).toString(), 5) +
         withPad(dep.pir.toString(), 5) +
-        withPad(dep.totalDependencies.toString(), 5) +
+        withPad(dep.totalDependencies.toString(), 4) +
+        withPad(round(getCildrenWithPointerPercentage(dep),1).toString(), 4) +
         "\n"));
 
     return iptRuns;
@@ -211,21 +226,21 @@ class DependencySorting implements IptRender, IptTransform {
         StaticTransclusionRun([aref.iid! + "/" + Note.iidPropertyName], onTap));
     iptRuns.add(PlainTextRun("\n\n" +
         withPad("RC", 5) +
-        withPad("Note", 40) +
+        withPad("Note", 35) +
         withPad("C", 5) +
         withPad("PIR", 5) +
-        withPad("Dep", 5) +
+        withPad("Dep", 4) +
+        withPad("CP", 4) +
         "\n"));
 
     for (var i = 0; i <= mapEntries.length; i++) {
-      if (mapEntries[i] == null) break;
       iptRuns.addAll(makeRow(mapEntries[i].key, mapEntries[i].value));
 
       var listCut = 0.05;
       if (getRequiredCareScore(mapEntries[i].value) < listCut) {
         iptRuns.add(PlainTextRun("+" +
             (mapEntries.length - i).toString() +
-            " with RC < " +
+            " with RC > " +
             listCut.toString() +
             " and maxLevel " +
             maxLevel.toString()));
@@ -269,7 +284,9 @@ class Dependency {
   double pir = 0;
   int hasPointer = 0;
   int totalDependencies = 0;
+  List<String> dependenciesIIds = [];
   int childrenWithPointer = 0;
   List<int> levels = [];
+  bool selfProcessed = false;
   //children pir?
 }
