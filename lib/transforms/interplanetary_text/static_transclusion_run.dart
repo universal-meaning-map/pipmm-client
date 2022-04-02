@@ -102,7 +102,7 @@ class StaticTransclusionRun implements IptRun {
     //Interplanetary text
     else {
       List<TextSpan> elements = [];
-      elements.add(IPTFactory.renderDot(aref));
+      elements.add(IPTFactory.renderDot(aref,onTap));
       for (var ipte in iptRuns) {
         elements.add(ipte.renderTransclusion(subscribeChild));
       }

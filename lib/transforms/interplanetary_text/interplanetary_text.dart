@@ -80,13 +80,20 @@ class IPTFactory {
     return IptRoot.fromExpr(expr, onTap, ValueKey(expr.toString()));
   }
 
-  static TextSpan renderDot(AbstractionReference aref) {
+  static TextSpan renderDot(AbstractionReference aref, Function onTap) {
     return TextSpan(
-        text: "● ",
-        recognizer: TapGestureRecognizer()..onTap = () {},
-        style: TextStyle(
-            color: getBackgroundColor(aref.origin),
-            fontWeight: FontWeight.w400));
+      text: "● ",
+      recognizer: TapGestureRecognizer()
+        ..onTap = () {
+          onTap(aref);
+        },
+      style: TextStyle(
+        letterSpacing: -7,
+        color: getBackgroundColor(aref.origin),
+        fontWeight: FontWeight.w400,
+        fontFamily: "FiraCode",
+      ),
+    );
   }
 }
 

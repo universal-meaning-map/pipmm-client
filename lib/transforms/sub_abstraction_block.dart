@@ -110,7 +110,7 @@ class SubAbstractionBlock implements IptRender, IptTransform {
 
   TextSpan renderTitle(String str, Function subscribeChild) {
     return TextSpan(
-        children: [IPTFactory.renderDot(aref), TextSpan(text: str)],
+        children: [IPTFactory.renderDot(aref,onTap), TextSpan(text: str)],
         style: titleStyleByLevel());
   }
 

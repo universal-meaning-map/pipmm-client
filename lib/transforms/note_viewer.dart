@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/repo.dart';
 import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/transforms/hyperlink.dart';
@@ -109,6 +110,14 @@ class _NoteViewerState extends State<NoteViewer> {
     );
   }
 
+  Widget buildDot() {
+    var aref = AbstractionReference.fromText(widget.iid);
+    return RichText(
+        text: TextSpan(
+            children: [IPTFactory.renderDot(aref, widget.onTap)],
+            style: const TextStyle(fontSize: 24)));
+  }
+
   Widget buildSpacing(double space) {
     return SizedBox(
       height: space,
@@ -202,7 +211,7 @@ class _NoteViewerState extends State<NoteViewer> {
       return Text(getStatusText(widget.iid, iidWrap.cid, cidWrap.note));
     }
 
-    List<Widget> items = [];
+    List<Widget> items = [buildDot()];
 
 /*
     cidWrap.note!.block.forEach((key, value) {
