@@ -58,7 +58,8 @@ class SubAbstractionBlock implements IptRender, IptTransform {
 
     if (note != null) {
       if (note.block[Note.iidPropertyName]) {
-        blocks.add(renderTitle(note.block[Note.iidPropertyName]));
+        blocks
+            .add(renderTitle(note.block[Note.iidPropertyName], subscribeChild));
         blocks.add(renderLineJump());
       }
       /*if (note.block[Note.iidPropertyAbstract]) {
@@ -107,8 +108,10 @@ class SubAbstractionBlock implements IptRender, IptTransform {
         height: 1.2);
   }
 
-  TextSpan renderTitle(String str) {
-    return TextSpan(text: str, style: titleStyleByLevel());
+  TextSpan renderTitle(String str, Function subscribeChild) {
+    return TextSpan(
+        children: [IPTFactory.renderDot(aref), TextSpan(text: str)],
+        style: titleStyleByLevel());
   }
 
   TextSpan renderAbstract(List<String> ipt, Function subscribeChild) {

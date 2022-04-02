@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/note.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/dynamic_transclusion_run.dart';
 import 'package:ipfoam_client/transforms/interplanetary_text/ipt_root.dart';
@@ -7,6 +8,8 @@ import 'package:ipfoam_client/transforms/interplanetary_text/plain_text_run.dart
 import 'package:ipfoam_client/transforms/interplanetary_text/static_transclusion_run.dart';
 import 'package:ipfoam_client/transforms/note_viewer.dart';
 import 'package:ipfoam_client/transforms/column_navigator.dart';
+import 'package:flutter/gestures.dart';
+import 'package:ipfoam_client/color_utils.dart';
 
 //Run (JSON): `["is6hvlinq2lf4dbua","is6hvlinqxoswfrpq","2"]`
 //Expr (Parsed JSON): [is6hvlinq2lf4dbua,is6hvlinqxoswfrpq,2]
@@ -76,6 +79,15 @@ class IPTFactory {
     }
     return IptRoot.fromExpr(expr, onTap, ValueKey(expr.toString()));
   }
+
+  static TextSpan renderDot(AbstractionReference aref) {
+    return TextSpan(
+        text: "● ",
+        recognizer: TapGestureRecognizer()..onTap = () {},
+        style: TextStyle(
+            color: getBackgroundColor(aref.origin),
+            fontWeight: FontWeight.w400));
+  }
 }
 
 abstract class RootTransform implements Widget {}
@@ -94,4 +106,3 @@ abstract class IptTransform {
   List<dynamic> arguments = [];
   String transformIid = "";
 }
-

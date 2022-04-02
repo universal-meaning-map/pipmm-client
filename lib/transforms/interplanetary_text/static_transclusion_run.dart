@@ -83,22 +83,43 @@ class StaticTransclusionRun implements IptRun {
     var iptRuns = IPTFactory.makeIptRuns(ipt, onTap);
 
     var text = "";
-    List<TextSpan> elements = [];
+
     // Plain text/ leaf of Interplanetary text
     if (ipt.length <= 1) {
       text = ipt[0];
+      if (assumedTransclusionProperty) {
+        text = "* " + text;
+      }
+      return TextSpan(
+          text: text,
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              onTap(aref);
+            },
+          style: getPlainStyle());
     }
+
     //Interplanetary text
     else {
+      List<TextSpan> elements = [];
+      elements.add(IPTFactory.renderDot(aref));
       for (var ipte in iptRuns) {
         elements.add(ipte.renderTransclusion(subscribeChild));
       }
-    }
-    if (assumedTransclusionProperty) {
-      text = "* " + text;
-    }
 
-    var style = TextStyle(
+      return TextSpan(
+        text: text,
+        children: elements,
+        recognizer: TapGestureRecognizer()
+          ..onTap = () {
+            onTap(aref);
+          },
+      );
+    }
+  }
+
+  TextStyle getPlainStyle() {
+    return TextStyle(
         color: notFoundNoteOrProperty ? Colors.red : Colors.black,
         fontWeight: FontWeight.w400,
         //decoration: TextDecoration.underline,
@@ -109,15 +130,5 @@ class StaticTransclusionRun implements IptRun {
           //..strokeJoin = StrokeJoin.round
           ..color = getBackgroundColor(aref.origin)
           ..style = PaintingStyle.fill);
-
-    return TextSpan(
-        text: text,
-        children: elements,
-        recognizer: TapGestureRecognizer()
-          ..onTap = () {
-            onTap(aref);
-          },
-        style: style);
   }
-
 }
