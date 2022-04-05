@@ -88,7 +88,7 @@ class IPTFactory {
           onTap(aref);
         },
       style: TextStyle(
-        letterSpacing: -7,
+        letterSpacing: -3,
         color: getBackgroundColor(aref.origin),
         fontWeight: FontWeight.w400,
         fontFamily: "FiraCode",

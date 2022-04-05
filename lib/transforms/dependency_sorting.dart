@@ -72,20 +72,6 @@ class DependencySorting implements IptRender, IptTransform {
     }
 
     //childrenWithPointer
-
-    dependencies.forEach((parentIid, dep) {
-      if (dependencies[parentIid] != null &&
-          dependencies[parentIid]!.childrenWithPointer == 0) {
-        for (var dependentIiid in dependencies[parentIid]!.dependenciesIIds) {
-          if (dependencies[dependentIiid] != null) {
-           
-            dependencies[parentIid]!.childrenWithPointer =
-                dependencies[parentIid]!.childrenWithPointer +
-                    dependencies[dependentIiid]!.hasPointer;
-          }
-        }
-      }
-    });
   }
 
   processDependency(AbstractionReference selfAref, String tiid, dynamic value,
@@ -133,6 +119,21 @@ class DependencySorting implements IptRender, IptTransform {
     }
   }
 
+  void compileDependencies() {
+    dependencies.forEach((parentIid, dep) {
+      if (dependencies[parentIid] != null &&
+          dependencies[parentIid]!.dependenciesWithPointer == 0) {
+        for (var dependentIiid in dependencies[parentIid]!.dependenciesIIds) {
+          if (dependencies[dependentIiid] != null) {
+            dependencies[parentIid]!.dependenciesWithPointer =
+                dependencies[parentIid]!.dependenciesWithPointer +
+                    dependencies[dependentIiid]!.hasPointer;
+          }
+        }
+      }
+    });
+  }
+
   String spaceForLevel(int level) {
     var t = "";
     for (var i = 0; i <= level; i++) {
@@ -141,16 +142,16 @@ class DependencySorting implements IptRender, IptTransform {
     return t;
   }
 
-  double getCildrenWithPointerPercentage(Dependency d) {
-    double childrenPointerPercentage = d.totalDependencies == 0
+  double getDependenciesWithPointerPercentage(Dependency d) {
+    double dependenciesPointerPercentage = d.totalDependencies == 0
         ? 1
-        : d.childrenWithPointer / d.totalDependencies;
+        : d.dependenciesWithPointer / d.totalDependencies;
 
-    return childrenPointerPercentage;
+    return dependenciesPointerPercentage;
   }
 
   double getCompletnessScore(Dependency d) {
-    var cs = d.hasPointer * getCildrenWithPointerPercentage(d) * d.pir;
+    var cs = d.hasPointer * getDependenciesWithPointerPercentage(d) * d.pir;
     return cs;
   }
 
@@ -193,7 +194,7 @@ class DependencySorting implements IptRender, IptTransform {
 
   List<dynamic> makeRow(String iid, Dependency dep) {
     var iptRuns = [];
-    var crs = round(getRequiredCareScore(dep),2).toString();
+    var crs = round(getRequiredCareScore(dep), 2).toString();
     //var crs="0,4rs";
     iptRuns.add(PlainTextRun(withPad(crs, 5)));
 
@@ -203,10 +204,11 @@ class DependencySorting implements IptRender, IptTransform {
         ? 35 - 8
         : 35; //for the ones missing name we pad the liid
     iptRuns.add(PlainTextRun(addPad(dep.name, namePad) +
-        withPad(round(getCompletnessScore(dep),1).toString(), 5) +
+        withPad(round(getCompletnessScore(dep), 1).toString(), 5) +
         withPad(dep.pir.toString(), 5) +
         withPad(dep.totalDependencies.toString(), 4) +
-        withPad(round(getCildrenWithPointerPercentage(dep),1).toString(), 4) +
+        withPad(
+            round(getDependenciesWithPointerPercentage(dep), 1).toString(), 4) +
         "\n"));
 
     return iptRuns;
@@ -230,7 +232,7 @@ class DependencySorting implements IptRender, IptTransform {
         withPad("C", 5) +
         withPad("PIR", 5) +
         withPad("Dep", 4) +
-        withPad("CP", 4) +
+        withPad("DWP", 4) +
         "\n"));
 
     for (var i = 0; i <= mapEntries.length; i++) {
@@ -243,7 +245,8 @@ class DependencySorting implements IptRender, IptTransform {
             " with RC > " +
             listCut.toString() +
             " and maxLevel " +
-            maxLevel.toString()));
+            maxLevel.toString() +
+            "\n\nRC: Required care (Σ level ((1-C) * DilutionFactor^Level )\nC: Completness (PIR * HasPointer *DWP)\nPIR: Projection to intent ratio\nDep: Number of dependencies\nDWP: % of dependencies with pointer"));
         break;
       }
     }
@@ -273,6 +276,7 @@ class DependencySorting implements IptRender, IptTransform {
     var note = Utils.getNote(aref);
     if (note != null) {
       processSelf(note, aref, subscribeChild, 0);
+      compileDependencies();
     }
 
     return renderAsSortedList(subscribeChild);
@@ -285,7 +289,7 @@ class Dependency {
   int hasPointer = 0;
   int totalDependencies = 0;
   List<String> dependenciesIIds = [];
-  int childrenWithPointer = 0;
+  int dependenciesWithPointer = 0;
   List<int> levels = [];
   bool selfProcessed = false;
   //children pir?
