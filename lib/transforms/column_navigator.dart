@@ -31,17 +31,16 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
       double columnRightSidePadding = 30;
       double firstColumnRightSidePadding = 30;
 
-
       var f = fullColumWidth /
           constrains.maxWidth; //expands the viewportFraction lienearly
       //Mobile
-      if (constrains.maxWidth <
-          fullColumWidth + fullColumWidth * (1 - viewPortFractionOnMobile)) {
+      bool isMobile = constrains.maxWidth <
+          fullColumWidth + fullColumWidth * (1 - viewPortFractionOnMobile);
+      if (isMobile) {
         f = viewPortFractionOnMobile;
         columnWidth = f * fullColumWidth;
         columnRightSidePadding = 5;
         firstColumnRightSidePadding = 5;
-
       }
 
       var pageController = PageController(keepPage: true, viewportFraction: f);
@@ -56,34 +55,40 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
             if (newColumns.length > index + 1) {
               newColumns.removeRange(index + 1, newColumns.length);
             }
-            newColumns.add(Navigation.makeTransformExpr(Config.openAbstractionsInTransform, aref));
+            newColumns.add(Navigation.makeTransformExpr(
+                Config.openAbstractionsInTransform, aref));
             var expr = Navigation.makeColumnExpr(newColumns);
             Navigation.pushExpr(expr);
-            /* 
+
             double newOffset = 0;
+
             if (constrains.maxWidth < newColumns.length * columnWidth) {
-              newOffset = newColumns.length * columnWidth - constrains.maxWidth;
+              var c = columnWidth;
+              if(isMobile){
+                c = constrains.maxWidth*f;
+              }
+              newOffset = newColumns.length * c - constrains.maxWidth;
             }
 
             pageController.animateTo(newOffset,
-                  duration: const Duration(milliseconds: 350),
-                  curve: Curves.easeInOutQuad);
-            */
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOutQuad);
           }
+
           double columnLeftSidePadding = 0;
-          if(index == 0){
+          if (index == 0) {
             columnLeftSidePadding = firstColumnRightSidePadding;
           }
 
           return Padding(
             key: Key(index.toString()),
-            padding: EdgeInsets.fromLTRB(columnLeftSidePadding, 0, columnRightSidePadding, 0),
+            padding: EdgeInsets.fromLTRB(
+                columnLeftSidePadding, 0, columnRightSidePadding, 0),
             child: ListView(
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
-                  child:
-                      IPTFactory.getRootTransform(columnsExpr[index], onTap),
+                  child: IPTFactory.getRootTransform(columnsExpr[index], onTap),
                 )
               ],
             ),
