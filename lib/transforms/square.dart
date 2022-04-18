@@ -44,7 +44,7 @@ class Square {
   }
 
   void processRoute() {
-    var uri = Uri.dataFromString(Html.window.location.href);
+    var uri = Uri.dataFromString(Html.window.location.hash);
 
     final localServerPort = uri.queryParameters['localServerPort'];
 
@@ -83,7 +83,7 @@ class Square {
       route = route + "localServerPort=" + Repo.localServerPort + "&";
     }
 
-    route = route + "expr=" + json.encode(expr);
+    route = route + "expr=" + json.encode(expr) + "&";
     Html.window.location.hash = route;
   }
 }
