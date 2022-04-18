@@ -28,8 +28,8 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
       double fullColumWidth = 600;
       double viewPortFractionOnMobile = 0.9;
       double columnWidth = fullColumWidth;
-      double columnRightSidePadding = 30;
-      double firstColumnRightSidePadding = 30;
+      double columnSidePadding = 15;
+      double firstColumnRightSidePadding = 15;
 
       var f = fullColumWidth /
           constrains.maxWidth; //expands the viewportFraction lienearly
@@ -39,7 +39,7 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
       if (isMobile) {
         f = viewPortFractionOnMobile;
         columnWidth = f * fullColumWidth;
-        columnRightSidePadding = 5;
+        columnSidePadding = 5;
         firstColumnRightSidePadding = 5;
       }
 
@@ -75,15 +75,14 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
                 curve: Curves.easeInOutQuad);
           }
 
-          double columnLeftSidePadding = 0;
-          if (index == 0) {
+         /* double columnLeftSidePadding = 0;
+         if (index == 0) {
             columnLeftSidePadding = firstColumnRightSidePadding;
-          }
-
+          }*/
           return Padding(
             key: Key(index.toString()),
             padding: EdgeInsets.fromLTRB(
-                columnLeftSidePadding, 0, columnRightSidePadding, 0),
+                columnSidePadding, 0, columnSidePadding, 0),
             child: ListView(
               children: [
                 Padding(
