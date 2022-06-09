@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/main.dart';
 import 'package:ipfoam_client/note.dart';
@@ -9,6 +11,7 @@ class SubAbstractionBlock implements IptRender, IptTransform {
   AbstractionReference aref = AbstractionReference.fromText("");
   int level = 0;
   Function onTap;
+  SubAbstractionBlockConfig config = SubAbstractionBlockConfig();
 
   @override
   String transformIid = Note.iidSubAbstractionBlock;
@@ -43,6 +46,25 @@ class SubAbstractionBlock implements IptRender, IptTransform {
     return l;
   }
 
+  void processConfig(String? iid, Function subscribeChild) {
+    if (iid == null) {
+      print("No config");
+      return;
+    }
+    subscribeChild(iid);
+    var configIid = AbstractionReference.fromText(iid);
+    var configNote = Utils.getNote(configIid);
+    if (configNote != null && configNote.block[Note.iidJsonConfig]) {
+      print("Yes config");
+      print(configNote.block[Note.iidJsonConfig]);
+      config = SubAbstractionBlockConfig.fromJSON(
+          configNote.block[Note.iidJsonConfig]);
+      print(config.showTransclusionLinks);
+      print(config.titleProperties);
+    }
+    print(iid);
+  }
+
   @override
   TextSpan renderTransclusion(Function subscribeChild) {
     if (aref.isIid()) {
@@ -52,6 +74,8 @@ class SubAbstractionBlock implements IptRender, IptTransform {
         subscribeChild(aref.cid);
       }
     }
+
+    processConfig(arguments[1], subscribeChild);
     var note = Utils.getNote(aref);
 
     List<TextSpan> blocks = [];
@@ -62,11 +86,13 @@ class SubAbstractionBlock implements IptRender, IptTransform {
             .add(renderTitle(note.block[Note.iidPropertyName], subscribeChild));
         blocks.add(renderLineJump());
       }
+
       /*if (note.block[Note.iidPropertyAbstract]) {
         blocks.add(renderAbstract(
             note.block[Note.iidPropertyAbstract], subscribeChild));
         blocks.add(renderLineJump());
       }*/
+
       if (note.block[Note.iidPropertyView]) {
         blocks
             .add(renderView(note.block[Note.iidPropertyView], subscribeChild));
@@ -110,7 +136,7 @@ class SubAbstractionBlock implements IptRender, IptTransform {
 
   TextSpan renderTitle(String str, Function subscribeChild) {
     return TextSpan(
-        children: [IPTFactory.renderDot(aref,onTap), TextSpan(text: str)],
+        children: [IPTFactory.renderDot(aref, onTap), TextSpan(text: str)],
         style: titleStyleByLevel());
   }
 
@@ -150,11 +176,53 @@ class SubAbstractionBlock implements IptRender, IptTransform {
           (iptRuns[i] as DynamicTransclusionRun).arguments = newArguments;
         }
       }
+
+      if (run.isStaticTransclusion()) {}
+
       elements.add(run.renderTransclusion(subscribeChild));
     }
 
     return TextSpan(
       children: elements,
     );
+  }
+
+  SubAbstractionBlockConfig getDefaultConfig() {
+    var config = SubAbstractionBlockConfig();
+    config.startLevel = 0;
+    config.titleProperties = [Note.iidPropertyName];
+    config.bodyProperties = [Note.iidPropertyView];
+    config.showTransclusionLinks = true;
+    return config;
+  }
+}
+
+class SubAbstractionBlockConfig {
+  int? startLevel;
+  bool? showTransclusionLinks;
+  List<String>? titleProperties;
+  List<String>? abstractProperties;
+  List<String>? bodyProperties;
+
+  SubAbstractionBlockConfig();
+
+  SubAbstractionBlockConfig.fromJSON(String jsonStr) {
+    try {
+      var jsonObj = json.decode(jsonStr) as Map<String, dynamic>;
+
+      startLevel = jsonObj["startLevel"] as int;
+      showTransclusionLinks = jsonObj["showTransclusionLinks"] as bool;
+      titleProperties =
+          List.castFrom<dynamic, String>(jsonObj["titleProperties"]);
+      abstractProperties =
+          List.castFrom<dynamic, String>(jsonObj["abstractProperties"]);
+      bodyProperties =
+          List.castFrom<dynamic, String>(jsonObj["bodyProperties"]);
+    } catch (e) {
+      print("Exception parsing SubAbstractionBlockConfig:\n\n" +
+          e.toString() +
+          "\n\nfor:\n" +
+          jsonStr);
+    }
   }
 }
