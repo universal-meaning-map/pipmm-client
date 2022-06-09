@@ -13,6 +13,7 @@ class StaticTransclusionRun implements IptRun {
   Function onTap;
   bool assumedTransclusionProperty = false;
   bool notFoundNoteOrProperty = false;
+  bool filterLinks = false;
 
   StaticTransclusionRun(List<dynamic> expr, this.onTap) {
     aref = AbstractionReference.fromText(expr[0]);
@@ -84,25 +85,31 @@ class StaticTransclusionRun implements IptRun {
 
     var text = "";
 
-    // Plain text/ leaf of Interplanetary text
+    // Leaf of Interplanetary text (link)
     if (ipt.length <= 1) {
       text = ipt[0];
       if (assumedTransclusionProperty) {
         text = "* " + text;
       }
-      return TextSpan(
-          text: text,
-          recognizer: TapGestureRecognizer()
-            ..onTap = () {
-              onTap(aref);
-            },
-          style: getPlainStyle());
+      if (filterLinks && shouldShowLink()) {
+        return TextSpan(
+            text: text,
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                onTap(aref);
+              },
+            style: arefStyle());
+      } else {
+        return TextSpan(text: text
+            // style: plainStyle()
+            );
+      }
     }
 
-    //Interplanetary text
+    //Interplanetary text (block of text)
     else {
       List<TextSpan> elements = [];
-      elements.add(IPTFactory.renderDot(aref,onTap));
+      elements.add(IPTFactory.renderDot(aref, onTap));
       for (var ipte in iptRuns) {
         elements.add(ipte.renderTransclusion(subscribeChild));
       }
@@ -118,7 +125,37 @@ class StaticTransclusionRun implements IptRun {
     }
   }
 
-  TextStyle getPlainStyle() {
+  bool shouldShowLink() {
+    var note = Utils.getNote(aref);
+    if (note == null) return false;
+
+    //This is a hack to prevent confusing rendering to the website visitors. It should be passed down as a filter
+    if (note.block[Note.iidPropertyPir] != null &&
+        note.block[Note.iidPropertyPir] > 0.6) {
+      if (note.block[Note.iidPropertyView] != null ||
+          note.block[Note.iidPropertyRef] != null) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  TextStyle arefStyle() {
+    return TextStyle(
+        color: notFoundNoteOrProperty ? Colors.red : Colors.black,
+        fontWeight: FontWeight.w400,
+        //decoration: TextDecoration.underline,
+        //decorationColor: getUnderlineColor(aref.origin),
+        //decorationThickness: 2, //doesn't seem to have any effect
+        background: Paint()
+          // ..strokeWidth = 10.0
+          //..strokeJoin = StrokeJoin.round
+          ..color = getBackgroundColor(aref.origin)
+          ..style = PaintingStyle.fill);
+  }
+
+  TextStyle plainStyle() {
     return TextStyle(
         color: notFoundNoteOrProperty ? Colors.red : Colors.black,
         fontWeight: FontWeight.w400,
