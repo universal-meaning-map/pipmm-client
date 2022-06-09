@@ -16,19 +16,22 @@ class Note {
   static const String basicTypeUrl = "url";
   //Thesae are only valid for my Repo
   //Todo: move to config
-  static const String midXavi = "i12D3KooWBSEYV1cK821KKdfVTHZc3gKaGkCQXjgoQotUDVYAxr3c";
+  static const String midXavi =
+      "i12D3KooWBSEYV1cK821KKdfVTHZc3gKaGkCQXjgoQotUDVYAxr3c";
   static const String iidPropertyName = midXavi + "qz3qlkca";
   static const String iidPropertyAbstract = midXavi + "bztj655a";
   static const String iidPropertyView = midXavi + "nwyia5xq";
   static const String iidPropertyTransform = midXavi + "wp2piu4q";
   static const String iidPropertyPir = midXavi + "hsme72ka";
+  static const String iidPropertyRef = midXavi + "ljsmjo6q";
 
   static const String iidColumnNavigator = midXavi + "lzfmhs7a";
   static const String iidInterplanetaryText = midXavi + "yvvefbya";
-  static const String iidNoteViewer = midXavi+ "k7dwg62a";
+  static const String iidNoteViewer = midXavi + "k7dwg62a";
   static const String iidSubAbstractionBlock = midXavi + "2lf4dbua";
   static const String iidIptHyperlink = midXavi + "4z6h5u4a";
   static const String iidDependencySorting = midXavi + "ummirfoq";
+  static const String iidJsonConfig = midXavi + "omqmxqiq";
 
   static const String transSubAbstractionBlock = "sub-abstraction-block";
   static const String transIptHyperlink = "ipt-hyperlink";
