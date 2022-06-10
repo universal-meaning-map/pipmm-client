@@ -9,7 +9,6 @@ import 'package:ipfoam_client/utils.dart';
 
 class SubAbstractionBlock implements IptRender, IptTransform {
   AbstractionReference aref = AbstractionReference.fromText("");
-  int level = 0;
   Function onTap;
   SubAbstractionBlockConfig config = SubAbstractionBlockConfig();
 
@@ -18,51 +17,53 @@ class SubAbstractionBlock implements IptRender, IptTransform {
   @override
   List<dynamic> arguments;
 
+  int level = 0;
+
   SubAbstractionBlock(this.arguments, this.onTap) {
     processArguments();
   }
 
   void processArguments() {
     //Note to transclude
-    if (arguments.length == 0) {
+    if (arguments.isEmpty) {
       aref = AbstractionReference.fromText("");
-    }
-    if (arguments.length == 1) {
-      level = -1;
+    } else {
+      aref = AbstractionReference.fromText(arguments[0]);
     }
 
-    aref = AbstractionReference.fromText(arguments[0]);
+    /*if (arguments.length == 1) {
+      level = -1;
 
     //Level of indentation
     level = getLevelFromArgument(arguments[1]);
     if (level == -1) level = 0;
+    }*/
   }
 
-  int getLevelFromArgument(String value) {
+  /* int getLevelFromArgument(String value) {
     var l = int.tryParse(value);
     if (l == null) {
       return -1;
     }
     return l;
-  }
+  }*/
 
-  void processConfig(String? iid, Function subscribeChild) {
+  SubAbstractionBlockConfig getConfig(String? iid, Function subscribeChild) {
     if (iid == null) {
-      print("No config");
-      return;
+      return SubAbstractionBlockConfig();
     }
     subscribeChild(iid);
     var configIid = AbstractionReference.fromText(iid);
     var configNote = Utils.getNote(configIid);
     if (configNote != null && configNote.block[Note.iidJsonConfig]) {
-      print("Yes config");
-      print(configNote.block[Note.iidJsonConfig]);
-      config = SubAbstractionBlockConfig.fromJSON(
+      return SubAbstractionBlockConfig.fromJSON(
           configNote.block[Note.iidJsonConfig]);
-      print(config.showTransclusionLinks);
-      print(config.titleProperties);
     }
-    print(iid);
+    print("Note " +
+        iid +
+        " does not seem to include a JsonConfig property " +
+        Note.iidJsonConfig);
+    return SubAbstractionBlockConfig();
   }
 
   @override
@@ -75,7 +76,7 @@ class SubAbstractionBlock implements IptRender, IptTransform {
       }
     }
 
-    processConfig(arguments[1], subscribeChild);
+    config = getConfig(arguments[1], subscribeChild);
     var note = Utils.getNote(aref);
 
     List<TextSpan> blocks = [];
@@ -166,43 +167,37 @@ class SubAbstractionBlock implements IptRender, IptTransform {
 
       if (run.isDynamicTransclusion()) {
         var dynamicRun = run as DynamicTransclusionRun;
-        if (dynamicRun.transformAref.iid == transformIid) {
-          var childLevel = getLevelFromArgument(run.arguments[1]);
-          if (childLevel == -1) {
-            childLevel = level + 1;
+        if (dynamicRun.transformAref.iid == Note.iidSubAbstractionBlock) {
+          var sabChild =
+              SubAbstractionBlock(dynamicRun.arguments, dynamicRun.onTap);
+          sabChild.level = level + 1;
+          if (run.arguments[1] != null) {
+            var childConfig = getConfig(run.arguments[1], subscribeChild);
+          } else {
+            sabChild.config = config;
           }
-          var newArguments = run.arguments;
-          newArguments[1] = childLevel.toString();
-          (iptRuns[i] as DynamicTransclusionRun).arguments = newArguments;
+          elements.add(sabChild.renderTransclusion(subscribeChild));
+        } else {
+          elements.add(run.renderTransclusion(subscribeChild));
         }
+      } else if (run.isStaticTransclusion()) {
+        elements.add(run.renderTransclusion(subscribeChild));
+      } else {
+        elements.add(run.renderTransclusion(subscribeChild));
       }
-
-      if (run.isStaticTransclusion()) {}
-
-      elements.add(run.renderTransclusion(subscribeChild));
     }
 
     return TextSpan(
       children: elements,
     );
   }
-
-  SubAbstractionBlockConfig getDefaultConfig() {
-    var config = SubAbstractionBlockConfig();
-    config.startLevel = 0;
-    config.titleProperties = [Note.iidPropertyName];
-    config.bodyProperties = [Note.iidPropertyView];
-    config.showTransclusionLinks = true;
-    return config;
-  }
 }
 
 class SubAbstractionBlockConfig {
-  int? startLevel;
-  bool? showTransclusionLinks;
-  List<String>? titleProperties;
-  List<String>? abstractProperties;
-  List<String>? bodyProperties;
+  bool showTransclusionLinks = true;
+  List<String> titleProperties = [Note.iidPropertyName];
+  List<String> abstractProperties = [];
+  List<String> bodyProperties = [Note.iidPropertyView];
 
   SubAbstractionBlockConfig();
 
@@ -210,7 +205,6 @@ class SubAbstractionBlockConfig {
     try {
       var jsonObj = json.decode(jsonStr) as Map<String, dynamic>;
 
-      startLevel = jsonObj["startLevel"] as int;
       showTransclusionLinks = jsonObj["showTransclusionLinks"] as bool;
       titleProperties =
           List.castFrom<dynamic, String>(jsonObj["titleProperties"]);
