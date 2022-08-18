@@ -92,7 +92,11 @@ class StaticTransclusionRun implements IptRun {
       if (assumedTransclusionProperty) {
         text = "* " + text;
       }
-      if (config.showTransclusionLinks && shouldShowLink()) {
+      if (config.filterTransclusionLinks && !passesFilterToDisplayLink()) {
+        return TextSpan(text: text
+            // style: plainStyle()
+            );
+      } else {
         return TextSpan(
             text: text,
             recognizer: TapGestureRecognizer()
@@ -100,10 +104,6 @@ class StaticTransclusionRun implements IptRun {
                 onTap(aref);
               },
             style: arefStyle());
-      } else {
-        return TextSpan(text: text
-            // style: plainStyle()
-            );
       }
     }
 
@@ -130,14 +130,13 @@ class StaticTransclusionRun implements IptRun {
     }
   }
 
-  bool shouldShowLink() {
-    return true;
+  bool passesFilterToDisplayLink() {
     var note = Utils.getNote(aref);
     if (note == null) return false;
 
     //This is a hack to prevent confusing rendering to the website visitors. It should be passed down as a filter
     if (note.block[Note.iidPropertyPir] != null &&
-        note.block[Note.iidPropertyPir] > 0.6) {
+        note.block[Note.iidPropertyPir] > 0.75) {
       if (note.block[Note.iidPropertyView] != null ||
           note.block[Note.iidPropertyRef] != null) {
         return true;
@@ -177,15 +176,16 @@ class StaticTransclusionRun implements IptRun {
 }
 
 class StaticTransclusionConfig {
-  bool showTransclusionLinks = true;
+  bool filterTransclusionLinks = false;
 
   StaticTransclusionConfig();
+  static const String FILTER_TRANSCLUSION_LINKS = "filterTransclusionLinks";
 
   StaticTransclusionConfig.fromJSON(String jsonStr) {
     try {
       var jsonObj = json.decode(jsonStr) as Map<String, dynamic>;
 
-      showTransclusionLinks = jsonObj["showTransclusionLinks"] as bool;
+      filterTransclusionLinks = jsonObj[FILTER_TRANSCLUSION_LINKS] as bool;
     } catch (e) {
       print("Exception parsing StaticTransclusionConfig:\n\n" +
           e.toString() +
@@ -195,7 +195,7 @@ class StaticTransclusionConfig {
   }
   StaticTransclusionConfig.fromJSONObj(Map<String, dynamic> jsonObj) {
     try {
-      showTransclusionLinks = jsonObj["showTransclusionLinks"] as bool;
+      filterTransclusionLinks = jsonObj[FILTER_TRANSCLUSION_LINKS] as bool;
     } catch (e) {
       print("Exception parsing StaticTransclusionConfig:\n\n" +
           e.toString() +

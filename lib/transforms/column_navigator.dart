@@ -42,7 +42,7 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
       var pageController = PageController(keepPage: true, viewportFraction: f);
 
       return PageView.builder(
-        padEnds: false,
+        padEnds: isMobile?true:false,
         controller: pageController,
         itemCount: columnsExpr.length,
         itemBuilder: (context, index) {
