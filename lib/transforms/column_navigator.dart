@@ -77,7 +77,7 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
             child: ListView(
               children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(isMobile ? 20 : 30, 30, 0, 30),
+                  padding: EdgeInsets.fromLTRB(isMobile ? 0 : 30, 30, 0, 30),
                   child: IPTFactory.getRootTransform(columnsExpr[index], onTap),
                 )
               ],
