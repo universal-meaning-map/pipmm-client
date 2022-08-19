@@ -6,8 +6,10 @@ class Config {
   static String remoteServer = "";
   static String defaultExpr = "";
   static String title = "";
-  static List<String> transclusionPropertiesPriority= [];
+  static List<String> transclusionPropertiesPriority = [];
   static String openAbstractionsInTransform = "";
+  static bool filterTransclusionLinks = false;
+
   static loadConfig(Function onLoaded) async {
     var data = await rootBundle.loadString('config.json');
     final jsonResult = jsonDecode(data);
@@ -15,8 +17,10 @@ class Config {
     remoteServer = jsonResult["remoteServer"];
     defaultExpr = jsonResult["defaultExpr"];
     title = jsonResult["title"];
-    transclusionPropertiesPriority = jsonResult["transclusionPropertiesPriority"];
+    transclusionPropertiesPriority =
+        jsonResult["transclusionPropertiesPriority"];
     openAbstractionsInTransform = jsonResult["openAbstractionsInTransform"];
+    filterTransclusionLinks = jsonResult["filterTransclusionLinks"];
 
     onLoaded();
   }

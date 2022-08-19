@@ -42,7 +42,7 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
       var pageController = PageController(keepPage: true, viewportFraction: f);
 
       return PageView.builder(
-        padEnds: isMobile?true:false,
+        padEnds: isMobile ? true : false,
         controller: pageController,
         itemCount: columnsExpr.length,
         itemBuilder: (context, index) {
@@ -60,8 +60,8 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
 
             if (constrains.maxWidth < newColumns.length * columnWidth) {
               var c = columnWidth;
-              if(isMobile){
-                c = constrains.maxWidth*f;
+              if (isMobile) {
+                c = constrains.maxWidth * f;
               }
               newOffset = newColumns.length * c - constrains.maxWidth;
             }
@@ -73,12 +73,11 @@ class ColumnNavigatorState extends State<ColumnNavigator> {
 
           return Padding(
             key: Key(index.toString()),
-            padding: const EdgeInsets.fromLTRB(
-                0, 0, 0, 0),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             child: ListView(
               children: [
                 Padding(
-                  padding:  EdgeInsets.fromLTRB(isMobile?20:30, 30, 0, 30),
+                  padding: EdgeInsets.fromLTRB(isMobile ? 20 : 30, 30, 0, 30),
                   child: IPTFactory.getRootTransform(columnsExpr[index], onTap),
                 )
               ],

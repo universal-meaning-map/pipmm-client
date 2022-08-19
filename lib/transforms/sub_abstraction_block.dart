@@ -186,7 +186,6 @@ class SubAbstractionBlock implements IptRender, IptTransform {
         }
       } else if (run.isStaticTransclusion()) {
         var staticRun = run as StaticTransclusionRun;
-        staticRun.config = config.staticTransculsion;
 
         elements.add(staticRun.renderTransclusion(subscribeChild));
       } else {
@@ -204,7 +203,6 @@ class SubAbstractionBlockConfig {
   List<String> titleProperties = [Note.iidPropertyName];
   List<String> abstractProperties = [];
   List<String> bodyProperties = [Note.iidPropertyView];
-  StaticTransclusionConfig staticTransculsion = StaticTransclusionConfig();
 
   SubAbstractionBlockConfig();
 
@@ -217,8 +215,6 @@ class SubAbstractionBlockConfig {
           List.castFrom<dynamic, String>(jsonObj["abstractProperties"]);
       bodyProperties =
           List.castFrom<dynamic, String>(jsonObj["bodyProperties"]);
-      staticTransculsion =
-          StaticTransclusionConfig.fromJSONObj(jsonObj["staticTransclusion"]);
     } catch (e) {
       print("Exception parsing SubAbstractionBlockConfig:\n\n" +
           e.toString() +

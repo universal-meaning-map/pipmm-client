@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:ipfoam_client/color_utils.dart';
@@ -14,7 +13,6 @@ class StaticTransclusionRun implements IptRun {
   Function onTap;
   bool assumedTransclusionProperty = false;
   bool notFoundNoteOrProperty = false;
-  StaticTransclusionConfig config = StaticTransclusionConfig();
 
   StaticTransclusionRun(List<dynamic> expr, this.onTap) {
     aref = AbstractionReference.fromText(expr[0]);
@@ -92,7 +90,8 @@ class StaticTransclusionRun implements IptRun {
       if (assumedTransclusionProperty) {
         text = "* " + text;
       }
-      if (config.filterTransclusionLinks && !passesFilterToDisplayLink()) {
+    
+      if (Config.filterTransclusionLinks && !passesFilterToDisplayLink()) {
         return TextSpan(text: text
             // style: plainStyle()
             );
@@ -112,10 +111,6 @@ class StaticTransclusionRun implements IptRun {
       List<TextSpan> elements = [];
       elements.add(IPTFactory.renderDot(aref, onTap));
       for (var ipte in iptRuns) {
-        if (ipte.isStaticTransclusion()) {
-          var staticRun = ipte as StaticTransclusionRun;
-          staticRun.config = config;
-        }
         elements.add(ipte.renderTransclusion(subscribeChild));
       }
 
@@ -172,35 +167,5 @@ class StaticTransclusionRun implements IptRun {
           //..strokeJoin = StrokeJoin.round
           ..color = getBackgroundColor(aref.origin)
           ..style = PaintingStyle.fill);
-  }
-}
-
-class StaticTransclusionConfig {
-  bool filterTransclusionLinks = false;
-
-  StaticTransclusionConfig();
-  static const String FILTER_TRANSCLUSION_LINKS = "filterTransclusionLinks";
-
-  StaticTransclusionConfig.fromJSON(String jsonStr) {
-    try {
-      var jsonObj = json.decode(jsonStr) as Map<String, dynamic>;
-
-      filterTransclusionLinks = jsonObj[FILTER_TRANSCLUSION_LINKS] as bool;
-    } catch (e) {
-      print("Exception parsing StaticTransclusionConfig:\n\n" +
-          e.toString() +
-          "\n\nfor:\n" +
-          jsonStr);
-    }
-  }
-  StaticTransclusionConfig.fromJSONObj(Map<String, dynamic> jsonObj) {
-    try {
-      filterTransclusionLinks = jsonObj[FILTER_TRANSCLUSION_LINKS] as bool;
-    } catch (e) {
-      print("Exception parsing StaticTransclusionConfig:\n\n" +
-          e.toString() +
-          "\n\nfor:\n" +
-          jsonObj.toString());
-    }
   }
 }
